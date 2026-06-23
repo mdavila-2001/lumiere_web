@@ -9,11 +9,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className = '', label, error, id, type = 'text', ...props }, ref) => {
     const generatedId = React.useId();
     const inputId = id || generatedId;
-
-    const baseInputStyles = 'w-full px-3 py-2 text-sm bg-zinc-900 border rounded-md shadow-sm transition-colors duration-200 outline-none placeholder-zinc-500 disabled:opacity-50 disabled:bg-zinc-950/50';
-    const borderStyles = error
-      ? 'border-red-500 text-red-100 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-      : 'border-zinc-700 text-zinc-100 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary';
+    const isError = Boolean(error);
 
     return (
       <div className="w-full flex flex-col gap-1.5 text-left">
@@ -26,7 +22,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           type={type}
-          className={`${baseInputStyles} ${borderStyles} ${className}`}
+          className={`input-base ${isError ? 'input-error' : 'input-normal'} ${className}`}
           {...props}
         />
         {error && (

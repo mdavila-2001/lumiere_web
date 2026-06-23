@@ -97,3 +97,45 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* Button Component Styles */
+.btn-base {
+  @apply inline-flex items-center justify-center gap-2 rounded-md font-semibold text-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2.5 min-h-[44px];
+}
+
+.btn-primary {
+  @apply bg-amber-500 text-zinc-950 hover:bg-amber-600 focus-visible:ring-amber-500 shadow-md shadow-amber-500/10;
+}
+
+.btn-secondary {
+  @apply bg-zinc-800 text-zinc-100 hover:bg-zinc-700 focus-visible:ring-zinc-500;
+}
+
+.btn-danger {
+  @apply bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500 shadow-md shadow-red-600/10;
+}
+
+.btn-outline {
+  @apply bg-transparent border border-zinc-700 text-zinc-100 hover:bg-zinc-900 focus-visible:ring-zinc-500;
+}
+
+/* Form Inputs & Selects */
+.input-base {
+  @apply w-full px-3 py-2.5 text-sm bg-zinc-900 border rounded-md shadow-sm transition-colors duration-200 outline-none placeholder-zinc-500 disabled:opacity-50 disabled:bg-zinc-950/50;
+}
+
+.input-normal {
+  @apply border-zinc-700 text-zinc-100 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/20;
+}
+
+.input-error {
+  @apply border-red-500 text-zinc-100 focus:border-red-500 focus:ring-1 focus:ring-red-500/20;
+}
+
+.select-base {
+  @apply w-full px-3 py-2.5 text-sm bg-zinc-900 border rounded-md shadow-sm transition-colors duration-200 outline-none text-zinc-100 disabled:opacity-50 disabled:bg-zinc-950/50 appearance-none cursor-pointer;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a1a1aa' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25rem;
+}
