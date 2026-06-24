@@ -1,13 +1,23 @@
 import * as React from 'react';
 import type { User } from '@/interfaces/user.interface';
 
-export interface AuthContextType {
-  user: User | null;
-  token: string | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (token: string, user: User) => void;
-  logout: () => void;
+export interface LoginCredentials {
+  email: string;
+  password: string;
 }
 
-export const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
+export interface RegisterData {
+  email: string;
+  password: string;
+}
+
+export interface AuthContextProps {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
+  logout: () => void | Promise<void>;
+}
+
+export const AuthContext = React.createContext<AuthContextProps | undefined>(undefined);

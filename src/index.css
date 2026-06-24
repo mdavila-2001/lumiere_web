@@ -12,12 +12,6 @@
   --color-on-surface-variant: var(--color-zinc-400);
   --color-surface-variant: var(--color-zinc-800);
   --color-primary-fixed: var(--color-amber-600);
-
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
-  --spacing-xxl: 48px;
 }
 
 :root {
@@ -52,7 +46,6 @@
 }
 
 #root {
-  width: 1126px;
   max-width: 100%;
   margin: 0 auto;
   text-align: center;
@@ -66,6 +59,20 @@
 body {
   margin: 0;
   background-color: var(--bg);
+}
+
+dialog[open] {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  max-height: 85vh;
+  width: calc(100% - 2rem);
+}
+dialog::backdrop {
+  position: fixed;
+  inset: 0;
 }
 
 h1,

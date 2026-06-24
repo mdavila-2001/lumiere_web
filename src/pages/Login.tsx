@@ -1,35 +1,15 @@
 import * as React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
-import type { User } from '@/interfaces/user.interface';
-import api, { ApiError } from '@/services/api';
-
-interface DecodedToken {
-  sub: string;
-  email: string;
-  role: 'ADMIN' | 'CUSTOMER';
-}
-
-function parseJwt(token: string): DecodedToken | null {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replaceAll('-', '+').replaceAll('_', '/');
-    const jsonPayload = decodeURIComponent(
-      globalThis
-        .atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + (c.codePointAt(0) ?? 0).toString(16)).slice(-2))
-        .join('')
-    );
-    return JSON.parse(jsonPayload) as DecodedToken;
-  } catch {
-    return null;
-  }
-}
+import { useAuthRedirect } from '@/hooks/use-auth-redirect';
+import { ApiError } from '@/services/api';
 
 export default function Login(): React.JSX.Element {
   const { login } = useAuth();
-  const navigate = useNavigate();
+
+  // Once the session holds a user, route it to its role-based landing page
+  // (Admin -> dashboard, Customer -> billboard) with the JWT already persisted.
+  useAuthRedirect();
 
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
 
@@ -41,7 +21,6 @@ export default function Login(): React.JSX.Element {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
 
-  // Background WebGL Shader Animation
   React.useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -188,29 +167,15 @@ export default function Login(): React.JSX.Element {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMsg(null);
 
     try {
-      const response = await api.post<{ accessToken: string }>('/auth/login', formData);
-      const token = response.data.accessToken;
-
-      const decoded = parseJwt(token);
-      if (!decoded) {
-        throw new Error('Malformed security token structure.');
-      }
-
-      const user: User = {
-        id: decoded.sub,
-        email: decoded.email,
-        role: decoded.role,
-        createdAt: new Date().toISOString(),
-      };
-
-      login(token, user);
-      navigate('/');
+      await login(formData);
+      // Redirection is handled reactively by useAuthRedirect once the
+      // authenticated user lands in the global auth state.
     } catch (err: unknown) {
       if (err instanceof ApiError) {
         setErrorMsg(err.message);
@@ -226,31 +191,25 @@ export default function Login(): React.JSX.Element {
 
   return (
     <main className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center p-6 relative overflow-hidden font-sans w-full">
-      {/* Background Shader */}
       <div className="fixed inset-0 w-screen h-screen z-0 pointer-events-none">
         <canvas ref={canvasRef} className="block w-full h-full" />
       </div>
 
-      {/* Login Card Container */}
-      <div className="w-full max-w-md glass-panel rounded-xl p-8 shadow-2xl relative overflow-hidden z-10">
+      <div className="glass-panel rounded-xl p-8 shadow-2xl relative overflow-hidden z-10">
         <div className="absolute top-0 right-0 w-full h-1/2 bg-gradient-to-b from-amber-500/5 to-transparent pointer-events-none"></div>
         <div className="relative z-10 flex flex-col gap-6">
-          {/* Header */}
           <div className="text-left">
             <h1 className="text-2xl font-bold text-zinc-100 mb-1">Bienvenido de nuevo</h1>
             <p className="text-xs text-zinc-400">Inicia sesión para acceder a tu experiencia cinematográfica.</p>
           </div>
 
-          {/* Validation Errors Box */}
           {errorMsg && (
             <div className="bg-red-950/40 border border-red-500/20 text-red-400 text-xs rounded-lg p-3 font-medium text-left">
               {errorMsg}
             </div>
           )}
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-            {/* Email Input */}
             <div className="relative">
               <input
                 id="email"

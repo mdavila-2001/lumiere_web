@@ -7,6 +7,9 @@ import { Select } from './components/ui/select';
 import { FileInput } from './components/ui/file-input';
 import { Checkbox, Radio } from './components/ui/choice-input';
 import { Sidebar } from './components/layout/sidebar';
+import { MovieCard } from './components/MovieCard';
+import type { Movie } from './interfaces/movie.interface';
+import { Modal } from './components/ui/modal';
 
 interface MovieItem {
     id: string;
@@ -17,7 +20,31 @@ interface MovieItem {
     releaseYear: number;
 }
 
+const testMovies: Movie[] = [
+    {
+        id: 'm-1',
+        title: 'Gladiator II',
+        synopsis: 'Años después de presenciar la muerte del héroe Máximo, Lucio se ve obligado a entrar en el Coliseo.',
+        genre: 'Acción / Drama',
+        duration: 148,
+        rating: 'R',
+        posterUrl: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=400&h=600&q=80',
+        createdAt: new Date().toISOString(),
+    },
+    {
+        id: 'm-2',
+        title: 'Interstellar',
+        synopsis: 'Un grupo de exploradores viaja a través de un agujero de gusano en el espacio en un intento por asegurar la supervivencia de la humanidad.',
+        genre: 'Sci-Fi / Aventura',
+        duration: 169,
+        rating: 'PG-13',
+        posterUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=400&h=600&q=80',
+        createdAt: new Date().toISOString(),
+    },
+];
+
 export default function TestComponents() {
+    const [isModalOpen, setIsModalOpen] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
     const [textVal, setTextVal] = React.useState('');
     const [numberVal, setNumberVal] = React.useState(120);
@@ -107,7 +134,7 @@ export default function TestComponents() {
                     <h1 className="text-4xl font-extrabold text-zinc-100 mt-1 mb-2 tracking-tight">
                         Design Tokens & UI components
                     </h1>
-                    <p className="text-zinc-400 max-w-xl">
+                    <p className="text-zinc-400">
                         Preview playground for the brand's visual identity, atomic components, and dark cinematic theme parameters.
                     </p>
                 </header>
@@ -303,6 +330,55 @@ export default function TestComponents() {
                         >
                             Reset Fields & Errors
                         </Button>
+                    </div>
+                </section>
+
+                {/* Section: Modal */}
+                <section className="space-y-4 text-left">
+                    <h2 className="text-xl font-bold border-b border-zinc-800 pb-2">Modal</h2>
+                    <div>
+                        <Button variant="primary" onClick={() => setIsModalOpen(true)}>
+                            Open Preview Modal
+                        </Button>
+                    </div>
+
+                    <Modal
+                        isOpen={isModalOpen}
+                        onClose={() => setIsModalOpen(false)}
+                        title="Información de la Función"
+                        size="md"
+                        footer={
+                            <>
+                                <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+                                    Cancelar
+                                </Button>
+                                <Button variant="primary" onClick={() => setIsModalOpen(false)}>
+                                    Confirmar
+                                </Button>
+                            </>
+                        }
+                    >
+                        <div className="space-y-4">
+                            <p className="text-zinc-300">
+                                Estás a punto de programar una nueva función para la sala IMAX 3D. Por favor confirma los detalles a continuación.
+                            </p>
+                            <div className="bg-[#111319] p-4 rounded-xl border border-gray-800 space-y-2 text-xs">
+                                <p><strong className="text-gray-400">Película:</strong> Gladiator II</p>
+                                <p><strong className="text-gray-400">Sala:</strong> Sala VIP 01</p>
+                                <p><strong className="text-gray-400">Hora:</strong> 20:30 PM</p>
+                                <p><strong className="text-gray-400">Precio:</strong> $12.50 USD</p>
+                            </div>
+                        </div>
+                    </Modal>
+                </section>
+
+                {/* Section: Movie Cards */}
+                <section className="space-y-4 text-left">
+                    <h2 className="text-xl font-bold border-b border-zinc-800 pb-2">Movie Cards</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                        {testMovies.map((movie) => (
+                            <MovieCard key={movie.id} movie={movie} />
+                        ))}
                     </div>
                 </section>
 

@@ -9,7 +9,11 @@ export interface User {
   id: string;
   email: string;
   role: UserRole;
-  createdAt: string;
+  /**
+   * Not part of the JWT payload returned by the backend, so it may be absent
+   * when the session is rehydrated purely from the token.
+   */
+  createdAt?: string;
 }
 
 export interface AuthResponse {

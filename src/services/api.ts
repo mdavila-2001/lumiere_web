@@ -44,44 +44,66 @@ api.interceptors.request.use(
   }
 );
 
+function clearExpiredCredentials(): void {
+  try {
+    localStorage.removeItem('lumiere_token');
+    localStorage.removeItem('lumiere_user');
+  } catch (e) {
+    console.error('Error al limpiar las credenciales expiradas de localStorage:', e);
+  }
+}
+
+function extractErrorMessage(
+  responseData: ApiErrorResponse | undefined,
+  fallbackMessage?: string
+): { message: string; errorsList: string[] } {
+  let message = 'An unexpected error occurred.';
+  let errorsList: string[] = [];
+
+  if (responseData) {
+    if (Array.isArray(responseData.message)) {
+      errorsList = responseData.message;
+      message = responseData.message.join(', ');
+    } else if (typeof responseData.message === 'string') {
+      errorsList = [responseData.message];
+      message = responseData.message;
+    } else if (responseData.error) {
+      errorsList = [responseData.error];
+      message = responseData.error;
+    }
+  } else if (fallbackMessage) {
+    errorsList = [fallbackMessage];
+    message = fallbackMessage;
+  }
+
+  return { message, errorsList };
+}
+
 api.interceptors.response.use(
   (response: AxiosResponse): AxiosResponse => {
     return response;
   },
   (error: unknown): Promise<never> => {
-    if (axios.isAxiosError(error)) {
-      const statusCode = error.response?.status;
-      const responseData = error.response?.data as ApiErrorResponse | undefined;
-
-      let message = 'An unexpected error occurred.';
-      let errorsList: string[] = [];
-
-      if (responseData) {
-        if (Array.isArray(responseData.message)) {
-          errorsList = responseData.message;
-          message = responseData.message.join(', ');
-        } else if (typeof responseData.message === 'string') {
-          errorsList = [responseData.message];
-          message = responseData.message;
-        } else if (responseData.error) {
-          errorsList = [responseData.error];
-          message = responseData.error;
-        }
-      } else if (error.message) {
-        errorsList = [error.message];
-        message = error.message;
-      }
-
-      // UX Guard: specific handling for Payload Too Large
-      if (statusCode === 413) {
-        message = 'The uploaded file exceeds the maximum size allowed.';
-        errorsList = [message];
-      }
-
-      return Promise.reject(new ApiError(message, errorsList, statusCode));
+    if (!axios.isAxiosError(error)) {
+      return Promise.reject(error);
     }
 
-    return Promise.reject(error);
+    const statusCode = error.response?.status;
+    const responseData = error.response?.data as ApiErrorResponse | undefined;
+
+    let { message, errorsList } = extractErrorMessage(responseData, error.message);
+
+    if (statusCode === 413) {
+      message = 'The uploaded file exceeds the maximum size allowed.';
+      errorsList = [message];
+    }
+
+    if (statusCode === 401) {
+      clearExpiredCredentials();
+      globalThis.location.href = '/login';
+    }
+
+    return Promise.reject(new ApiError(message, errorsList, statusCode));
   }
 );
 
