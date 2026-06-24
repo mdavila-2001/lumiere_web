@@ -12,6 +12,8 @@ import AdminDashboard from '@/pages/AdminDashboard';
 import MovieManagement from '@/pages/MovieManagement';
 import RoomManagement from '@/pages/RoomManagement';
 import ShowtimeManagement from '@/pages/ShowtimeManagement';
+import TestComponents from '@/TestComponents';
+import AdminLayout from '@/layouts/admin-layout';
 
 export default function App(): React.JSX.Element {
   return (
@@ -23,6 +25,7 @@ export default function App(): React.JSX.Element {
           <Route path="/movie/:id" element={<MovieDetails />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/test" element={<TestComponents />} />
 
           {/* Customer & Admin Secure Routes */}
           <Route element={<ProtectedRoute allowedRoles={['CUSTOMER', 'ADMIN']} />}>
@@ -31,10 +34,12 @@ export default function App(): React.JSX.Element {
 
           {/* Admin Exclusive Routes */}
           <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/movies" element={<MovieManagement />} />
-            <Route path="/admin/rooms" element={<RoomManagement />} />
-            <Route path="/admin/showtimes" element={<ShowtimeManagement />} />
+            <Route element={<AdminLayout />}>
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/movies" element={<MovieManagement />} />
+              <Route path="/admin/rooms" element={<RoomManagement />} />
+              <Route path="/admin/showtimes" element={<ShowtimeManagement />} />
+            </Route>
           </Route>
         </Routes>
       </BrowserRouter>

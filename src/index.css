@@ -4,6 +4,20 @@
   --color-brand-primary: var(--color-amber-500);
   --color-brand-dark: var(--color-zinc-950);
   --color-brand-surface: var(--color-zinc-900);
+  
+  --color-surface-container: var(--color-zinc-900);
+  --color-surface-bright: var(--color-zinc-800);
+  --color-primary-container: var(--color-amber-500);
+  --color-on-primary-container: var(--color-zinc-950);
+  --color-on-surface-variant: var(--color-zinc-400);
+  --color-surface-variant: var(--color-zinc-800);
+  --color-primary-fixed: var(--color-amber-600);
+
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
 }
 
 :root {
@@ -98,7 +112,6 @@ code {
   background: var(--code-bg);
 }
 
-/* Button Component Styles */
 .btn-base {
   @apply inline-flex items-center justify-center gap-2 rounded-md font-semibold text-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2.5 min-h-[44px];
 }
@@ -119,7 +132,6 @@ code {
   @apply bg-transparent border border-zinc-700 text-zinc-100 hover:bg-zinc-900 focus-visible:ring-zinc-500;
 }
 
-/* Form Inputs & Selects */
 .input-base {
   @apply w-full px-3 py-2.5 text-sm bg-zinc-900 border rounded-md shadow-sm transition-colors duration-200 outline-none placeholder-zinc-500 disabled:opacity-50 disabled:bg-zinc-950/50;
 }
@@ -138,4 +150,24 @@ code {
   background-position: right 0.75rem center;
   background-repeat: no-repeat;
   background-size: 1.25rem;
+}
+
+.glass-panel {
+  background: rgba(24, 24, 27, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.floating-input:focus ~ .floating-label,
+.floating-input:not(:placeholder-shown) ~ .floating-label {
+  transform: translateY(-1.75rem) scale(0.85);
+  color: var(--color-amber-500);
+  background-color: #18181b;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+.gold-glow:hover {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
 }

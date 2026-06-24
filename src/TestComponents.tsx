@@ -6,6 +6,7 @@ import { DataTable, type ColumnDef } from './components/ui/data-table';
 import { Select } from './components/ui/select';
 import { FileInput } from './components/ui/file-input';
 import { Checkbox, Radio } from './components/ui/choice-input';
+import { Sidebar } from './components/layout/sidebar';
 
 interface MovieItem {
     id: string;
@@ -96,8 +97,10 @@ export default function TestComponents() {
     ];
 
     return (
-        <div className="w-full min-h-screen bg-zinc-950 text-zinc-100 py-12 px-6">
-            <div className="max-w-4xl mx-auto space-y-12">
+        <div className="min-h-screen bg-zinc-950 text-zinc-100 flex w-full">
+            <Sidebar onNewScreeningClick={() => console.log('New Screening clicked')} />
+            <main className="flex-grow pl-64 w-full">
+                <div className="max-w-4xl mx-auto py-12 px-6 space-y-12 text-left">
                 {/* Header */}
                 <header className="border-b border-zinc-800 pb-6 text-left">
                     <Badge variant="amber" className="mb-2">Lumière System v1.1</Badge>
@@ -312,7 +315,8 @@ export default function TestComponents() {
                         emptyMessage="No movie entries to show."
                     />
                 </section>
-            </div>
+                </div>
+            </main>
         </div>
     );
 }
