@@ -76,7 +76,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               onKeyDown={handleKeyDown}
               {...props}
             />
-            {/* Search button */}
+            
             <button
               type="button"
               onClick={handleSearchClick}
@@ -163,5 +163,4 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
 );
 
 Input.displayName = 'Input';
-
 

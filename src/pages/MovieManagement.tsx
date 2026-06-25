@@ -52,21 +52,21 @@ export default function MovieManagement(): React.JSX.Element {
   const [activeGenreFilter, setActiveGenreFilter] = React.useState<string>('All Genres');
   const [activeRatingFilter, setActiveRatingFilter] = React.useState<string>('All Ratings');
 
-  // Debounce the search box before it reaches the backend search endpoint.
+  
   React.useEffect(() => {
     const handle = setTimeout(() => setDebouncedQuery(searchQuery), 350);
     return () => clearTimeout(handle);
   }, [searchQuery]);
 
-  // Deletion workflow state
+  
   const [movieTargetToDelete, setMovieTargetToDelete] = React.useState<Movie | null>(null);
   const [isDeleting, setIsDeleting] = React.useState<boolean>(false);
 
-  // Global operations error context
+  
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
   const [deleteErrorMsg, setDeleteErrorMsg] = React.useState<string | null>(null);
 
-  // Fetch Pipeline — movies + showtimes in parallel
+  
   React.useEffect(() => {
     let isMounted = true;
 
@@ -118,7 +118,7 @@ export default function MovieManagement(): React.JSX.Element {
     };
   }, [debouncedQuery]);
 
-  // Compute per-movie showtime stats from the full showtimes list
+  
   const movieShowtimeMap = React.useMemo(() => {
     const map = new Map<string, { premiereDate: string | null; totalShows: number; roomNames: string[] }>();
 
@@ -134,11 +134,11 @@ export default function MovieManagement(): React.JSX.Element {
         });
       } else {
         entry.totalShows += 1;
-        // Keep the earliest showtime as the premiere date
+        
         if (new Date(st.startTime).getTime() < new Date(entry.premiereDate ?? st.startTime).getTime()) {
           entry.premiereDate = st.startTime;
         }
-        // Collect unique room names
+        
         if (roomName && !entry.roomNames.includes(roomName)) {
           entry.roomNames.push(roomName);
         }
@@ -148,15 +148,15 @@ export default function MovieManagement(): React.JSX.Element {
     return map;
   }, [showtimes]);
 
-  // Title search is handled by the backend; genre/rating remain client-side
-  // refinements (they carry bilingual matching logic) over the fetched results.
+  
+  
   const filteredMovies = React.useMemo(() => {
     return movies.filter((movie) => {
       let matchesGenre = true;
       if (activeGenreFilter && activeGenreFilter !== 'All Genres') {
         const genreLower = activeGenreFilter.toLowerCase();
         const movieGenreLower = movie.genre.toLowerCase();
-        // Custom check for flexible translation support
+        
         if (genreLower === 'action') {
           matchesGenre = movieGenreLower.includes('action') || movieGenreLower.includes('acción');
         } else if (genreLower === 'sci-fi') {
@@ -179,7 +179,7 @@ export default function MovieManagement(): React.JSX.Element {
     });
   }, [movies, activeGenreFilter, activeRatingFilter]);
 
-  // Action handlers
+  
   const handleEdit = (id: string): void => {
     navigate(`/admin/movies/edit/${id}`);
   };
@@ -195,10 +195,10 @@ export default function MovieManagement(): React.JSX.Element {
     setIsDeleting(true);
     setDeleteErrorMsg(null);
     try {
-      // Axios automatic interception verifies successful status codes
+      
       await api.delete(`/movies/${movieTargetToDelete.id}`);
 
-      // Smoothly update the local state without forcing a full refresh
+      
       setMovies((prev) => prev.filter((m) => m.id !== movieTargetToDelete.id));
       setMovieTargetToDelete(null);
     } catch (err: unknown) {
@@ -253,7 +253,7 @@ export default function MovieManagement(): React.JSX.Element {
         </div>
       </header>
 
-      {/* ── Multi-Tier Filter Navigation Grid ─────────────────── */}
+      
       <section className="flex flex-wrap items-center gap-4 bg-[#1d1f26]/40 p-4 border border-gray-800/40 rounded-xl">
         <div className="flex items-center gap-2 font-sans">
           <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">
@@ -300,10 +300,10 @@ export default function MovieManagement(): React.JSX.Element {
         </div>
       )}
 
-      {/* ── Movie Inventory List ──────────────────────────────── */}
+      
       <div className="flex-1 w-full">
         {isPageLoading ? (
-          // Sleek structural row skeletons while tasks are pending
+          
           <div className="space-y-4">
             <MovieListItemSkeleton />
             <MovieListItemSkeleton />
@@ -348,7 +348,7 @@ export default function MovieManagement(): React.JSX.Element {
             })}
           </div>
         ) : (
-          // Beautiful empty state to keep engagement high
+          
           <div className="flex flex-col items-center justify-center py-16 px-6 bg-[#1d1f26]/20 border border-gray-800/40 rounded-xl text-center space-y-4">
             <span className="material-symbols-outlined text-[48px] text-zinc-600">movie_off</span>
             <div className="space-y-1">
@@ -374,7 +374,7 @@ export default function MovieManagement(): React.JSX.Element {
         )}
       </div>
 
-      {/* ── Glassmorphic Confirmation Modal Block ──────────────── */}
+      
       {movieTargetToDelete && (
         <Modal
           isOpen={true}

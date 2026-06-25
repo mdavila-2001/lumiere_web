@@ -6,8 +6,6 @@ import { MovieCard } from '@/components/MovieCard';
 import { useAuth } from '@/hooks/use-auth';
 import { UserRole } from '@/interfaces/user.interface';
 
-// The User model carries no `name` field (only email/role), so avatar initials
-// are derived defensively from the email's local part.
 function getInitials(email: string | undefined): string {
   if (!email) return '?';
   const localPart = email.split('@')[0];
@@ -22,12 +20,12 @@ export default function Home(): React.JSX.Element {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuth();
 
-  // ── Catalog state ───────────────────────────────────────────────────────
+  
   const [movies, setMovies] = React.useState<Movie[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
 
-  // ── Profile dropdown state ──────────────────────────────────────────────
+  
   const [isMenuOpen, setIsMenuOpen] = React.useState<boolean>(false);
   const menuRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -50,7 +48,7 @@ export default function Home(): React.JSX.Element {
     fetchMovies();
   }, []);
 
-  // Close the profile dropdown when clicking outside of it.
+  
   React.useEffect(() => {
     if (!isMenuOpen) return;
     const handleClickOutside = (event: MouseEvent): void => {
@@ -70,9 +68,9 @@ export default function Home(): React.JSX.Element {
 
   return (
     <div className="min-h-screen w-full bg-zinc-950 flex flex-col text-zinc-100">
-      {/* ── Integrated Conditional Header Navbar ─────────────────────────── */}
+      
       <header className="w-full bg-zinc-900 border-b border-zinc-800 px-6 h-16 flex items-center justify-between">
-        {/* Left: Branding */}
+        
         <button
           type="button"
           onClick={() => navigate('/')}
@@ -91,7 +89,7 @@ export default function Home(): React.JSX.Element {
               Mis Reservas
             </button>
 
-            {/* Profile avatar + dropdown */}
+            
             <div className="relative" ref={menuRef}>
               <button
                 type="button"
@@ -176,14 +174,14 @@ export default function Home(): React.JSX.Element {
             </p>
           </section>
 
-          {/* Error feedback */}
+          
           {errorMsg && (
             <div className="bg-red-950/40 border border-red-500/20 text-red-400 text-sm rounded-lg p-4 font-medium">
               {errorMsg}
             </div>
           )}
 
-          {/* Catalog states */}
+          
           {isLoading ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
               {Array.from({ length: 8 }).map((_, idx) => (

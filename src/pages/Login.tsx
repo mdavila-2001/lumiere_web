@@ -8,8 +8,8 @@ import { ROUTES } from '@/routes/paths';
 export default function Login(): React.JSX.Element {
   const { login } = useAuth();
 
-  // Once the session holds a user, route it to its role-based landing page
-  // (Admin -> dashboard, Customer -> billboard) with the JWT already persisted.
+  
+  
   useAuthRedirect();
 
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
@@ -175,8 +175,8 @@ export default function Login(): React.JSX.Element {
 
     try {
       await login(formData);
-      // Redirection is handled reactively by useAuthRedirect once the
-      // authenticated user lands in the global auth state.
+      
+      
     } catch (err: unknown) {
       if (err instanceof ApiError) {
         setErrorMsg(err.message);
@@ -231,7 +231,7 @@ export default function Login(): React.JSX.Element {
               </label>
             </div>
 
-            {/* Password Input */}
+            
             <div className="relative">
               <input
                 id="password"
@@ -268,7 +268,7 @@ export default function Login(): React.JSX.Element {
               </button>
             </div>
 
-            {/* Actions */}
+            
             <button
               type="submit"
               disabled={isSubmitting}
@@ -288,7 +288,7 @@ export default function Login(): React.JSX.Element {
             </button>
           </form>
 
-          {/* Footer Register Link */}
+          
           <div className="text-center mt-2 flex flex-col gap-3">
             <p className="text-xs text-zinc-400">
               ¿No tienes una cuenta?{' '}

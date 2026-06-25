@@ -16,7 +16,7 @@ export default function Register(): React.JSX.Element {
   const navigate = useNavigate();
   const { register } = useAuth();
 
-  // Bounce already-authenticated visitors away from the auth screen.
+  
   useAuthRedirect();
 
   const [formData, setFormData] = React.useState<RegisterFormState>({
@@ -29,7 +29,7 @@ export default function Register(): React.JSX.Element {
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
   const [isSuccess, setIsSuccess] = React.useState<boolean>(false);
 
-  // After a successful registration, send the visitor to the login screen.
+  
   React.useEffect(() => {
     if (!isSuccess) return;
     const timer = setTimeout(() => navigate('/login'), 2000);
@@ -86,7 +86,7 @@ export default function Register(): React.JSX.Element {
 
   return (
     <main className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center p-6 relative overflow-hidden font-sans w-full">
-      {/* Subtle ambient backdrop */}
+      
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute -top-1/3 left-1/2 -translate-x-1/2 w-[40rem] h-[40rem] bg-amber-500/10 rounded-full blur-[120px]" />
         <div className="absolute bottom-0 right-0 w-[30rem] h-[30rem] bg-amber-500/5 rounded-full blur-[120px]" />
@@ -96,7 +96,7 @@ export default function Register(): React.JSX.Element {
         <div className="absolute top-0 right-0 w-full h-1/2 bg-gradient-to-b from-amber-500/5 to-transparent pointer-events-none" />
 
         {isSuccess ? (
-          /* ── Success state ─────────────────────────────────────── */
+          
           <div className="relative z-10 flex flex-col items-center text-center gap-4 py-4">
             <div className="w-14 h-14 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500">
               <span className="material-symbols-outlined text-[28px]">check_circle</span>
@@ -115,7 +115,7 @@ export default function Register(): React.JSX.Element {
             </Link>
           </div>
         ) : (
-          /* ── Registration form ─────────────────────────────────── */
+          
           <div className="relative z-10 flex flex-col gap-6">
             <div className="text-left">
               <h1 className="text-2xl font-bold text-zinc-100 mb-1">Crea tu cuenta</h1>
@@ -131,7 +131,7 @@ export default function Register(): React.JSX.Element {
             )}
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
-              {/* Email */}
+              
               <div className="relative">
                 <input
                   id="email"
@@ -152,7 +152,7 @@ export default function Register(): React.JSX.Element {
                 </label>
               </div>
 
-              {/* Password */}
+              
               <div className="relative">
                 <input
                   id="password"
@@ -183,7 +183,7 @@ export default function Register(): React.JSX.Element {
                 </button>
               </div>
 
-              {/* Confirm Password */}
+              
               <div className="relative">
                 <input
                   id="confirmPassword"

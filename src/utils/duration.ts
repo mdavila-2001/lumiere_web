@@ -1,11 +1,4 @@
-/**
- * Converts a duration expressed in minutes into a readable "Xh Ym" label.
- *
- * @example
- * formatMinutesAsHours(111); // "1 h 51 min"
- * formatMinutesAsHours(120); // "2 h"
- * formatMinutesAsHours(45);  // "45 min"
- */
+
 export function formatMinutesAsHours(totalMinutes: number): string {
   if (!Number.isFinite(totalMinutes) || totalMinutes <= 0) {
     return '0 min';

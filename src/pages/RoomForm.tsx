@@ -6,7 +6,6 @@ import type { Seat } from '@/interfaces/seat.interface';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 
-// Helper to translate row index to A-Z labels (A=1, B=2, ...)
 const getRowLabel = (rowNum: number): string => {
   return String.fromCharCode(64 + rowNum);
 };
@@ -18,31 +17,31 @@ export default function RoomForm(): React.JSX.Element {
   const navigate = useNavigate();
   const isEditMode = Boolean(id);
 
-  // Form State variables
+  
   const [name, setName] = React.useState<string>('');
   const [rowsCount, setRowsCount] = React.useState<number>(10);
   const [columnsCount, setColumnsCount] = React.useState<number>(10);
   const [layout, setLayout] = React.useState<Record<string, SeatStatus>>({});
 
-  // Loading & Submission state flags
+  
   const [isLoadingDetails, setIsLoadingDetails] = React.useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
   
-  // Validation and API errors state
+  
   const [nameError, setNameError] = React.useState<string | null>(null);
   const [rowsError, setRowsError] = React.useState<string | null>(null);
   const [colsError, setColsError] = React.useState<string | null>(null);
   const [submitError, setSubmitError] = React.useState<string | null>(null);
 
-  // Reference list of seats returned from the DB in Edit Mode to calculate differences
+  
   const [initialDbSeats, setInitialDbSeats] = React.useState<Seat[]>([]);
 
-  // Fetch Room details & layout configuration in Edit Mode
+  
   const loadRoomDetails = React.useCallback(async (roomId: string): Promise<void> => {
     setIsLoadingDetails(true);
     setSubmitError(null);
     try {
-      // 1. Fetch room metadata
+      
       const roomRes = await api.get<Room>(`/rooms/${roomId}`);
       if (roomRes.status === 200) {
         setName(roomRes.data.name);
@@ -50,13 +49,13 @@ export default function RoomForm(): React.JSX.Element {
         setColumnsCount(roomRes.data.columnsCount);
       }
 
-      // 2. Fetch active seats in database
+      
       const seatsRes = await api.get<Seat[]>(`/rooms/${roomId}/seats`);
       if (seatsRes.status === 200) {
         const dbSeats = seatsRes.data;
         setInitialDbSeats(dbSeats);
 
-        // Prepopulate layout state based on presence in DB
+        
         const dbSeatKeys = new Set(dbSeats.map(s => `${s.rowNumber}-${s.columnNumber}`));
         const loadedLayout: Record<string, SeatStatus> = {};
         
@@ -89,7 +88,7 @@ export default function RoomForm(): React.JSX.Element {
     }
   }, [isEditMode, id, loadRoomDetails]);
 
-  // Handle live resizing & synchronization of the grid layout map state
+  
   React.useEffect(() => {
     if (isLoadingDetails) return;
 
@@ -101,7 +100,7 @@ export default function RoomForm(): React.JSX.Element {
           if (prev[key]) {
             next[key] = prev[key];
           } else {
-            // New seats default to active seat
+            
             next[key] = 'seat';
           }
         }
@@ -110,7 +109,7 @@ export default function RoomForm(): React.JSX.Element {
     });
   }, [rowsCount, columnsCount, isLoadingDetails]);
 
-  // Validate fields
+  
   const validateForm = (): boolean => {
     let isValid = true;
 
@@ -144,7 +143,7 @@ export default function RoomForm(): React.JSX.Element {
     return isValid;
   };
 
-  // Toggle seat state: seat <-> empty
+  
   const handleSeatClick = (row: number, col: number): void => {
     const key = `${row}-${col}`;
     setLayout((prev) => {
@@ -157,7 +156,7 @@ export default function RoomForm(): React.JSX.Element {
     });
   };
 
-  // Capacity calculations
+  
   const activeSeatsCount = React.useMemo(() => {
     let count = 0;
     for (let r = 1; r <= rowsCount; r++) {
@@ -170,7 +169,7 @@ export default function RoomForm(): React.JSX.Element {
     return count;
   }, [layout, rowsCount, columnsCount]);
 
-  // Adjusters handlers
+  
   const handleRowsChange = (val: number): void => {
     const safeVal = isNaN(val) ? 0 : val;
     setRowsCount(safeVal);
@@ -183,7 +182,7 @@ export default function RoomForm(): React.JSX.Element {
     if (safeVal > 0 && safeVal <= 20) setColsError(null);
   };
 
-  // Submit handler
+  
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setSubmitError(null);
@@ -193,8 +192,8 @@ export default function RoomForm(): React.JSX.Element {
     setIsSubmitting(true);
     try {
       if (isEditMode && id) {
-        // --- EDIT MODE FLOW ---
-        // 1. Update room meta dimensions and name
+        
+        
         const updatePayload = {
           name: name.trim(),
           rowsCount,
@@ -202,12 +201,12 @@ export default function RoomForm(): React.JSX.Element {
         };
         await api.patch(`/rooms/${id}`, updatePayload);
 
-        // 2. Identify seat mutations by comparing local layout state with initial database records
+        
         const dbSeatKeys = new Set(initialDbSeats.map(s => `${s.rowNumber}-${s.columnNumber}`));
         const seatsToAdd: { r: number; c: number }[] = [];
         const seatsToDelete: { r: number; c: number }[] = [];
 
-        // Check cells within current boundaries
+        
         for (let r = 1; r <= rowsCount; r++) {
           for (let c = 1; c <= columnsCount; c++) {
             const key = `${r}-${c}`;
@@ -222,14 +221,14 @@ export default function RoomForm(): React.JSX.Element {
           }
         }
 
-        // Identify database seats that are now out of bounds due to shrinking size
+        
         initialDbSeats.forEach((s) => {
           if (s.rowNumber > rowsCount || s.columnNumber > columnsCount) {
             seatsToDelete.push({ r: s.rowNumber, c: s.columnNumber });
           }
         });
 
-        // 3. Parallelize seat updates
+        
         await Promise.all([
           ...seatsToAdd.map(({ r, c }) =>
             api.post(`/rooms/${id}/seats/${r}/${c}`).catch((err) => {
@@ -245,8 +244,8 @@ export default function RoomForm(): React.JSX.Element {
 
         navigate('/admin/rooms');
       } else {
-        // --- CREATE MODE FLOW ---
-        // 1. Send create payload (initializes full grid of seats in database)
+        
+        
         const createPayload = {
           name: name.trim(),
           rowsCount,
@@ -255,7 +254,7 @@ export default function RoomForm(): React.JSX.Element {
         const createRes = await api.post<Room>('/rooms', createPayload);
         const newRoom = createRes.data;
 
-        // 2. Determine disabled seats to delete from DB
+        
         const disabledSeatsToPrune: { r: number; c: number }[] = [];
         for (let r = 1; r <= rowsCount; r++) {
           for (let c = 1; c <= columnsCount; c++) {
@@ -265,7 +264,7 @@ export default function RoomForm(): React.JSX.Element {
           }
         }
 
-        // 3. Parallelize pruning of disabled seat coordinates
+        
         if (disabledSeatsToPrune.length > 0) {
           await Promise.all(
             disabledSeatsToPrune.map(({ r, c }) =>
@@ -292,7 +291,7 @@ export default function RoomForm(): React.JSX.Element {
     }
   };
 
-  // Render Skeleton while details are loading
+  
   if (isEditMode && isLoadingDetails) {
     return (
       <div className="space-y-8 w-full flex flex-col min-h-full pb-12 font-sans animate-pulse">
@@ -310,7 +309,7 @@ export default function RoomForm(): React.JSX.Element {
 
   return (
     <div className="space-y-8 w-full flex flex-col min-h-full pb-12 font-sans text-left">
-      {/* Page Header */}
+      
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-extrabold text-[#e2e2eb] tracking-tight font-display !m-0 leading-tight">
@@ -333,16 +332,16 @@ export default function RoomForm(): React.JSX.Element {
         </div>
       )}
 
-      {/* Main Grid Viewport */}
+      
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        {/* Left Side: Controls Column */}
+        
         <section className="bg-[#1d1f26] border border-gray-800/40 rounded-2xl p-6 space-y-6 shadow-xl relative overflow-hidden">
           <h2 className="text-xl font-bold text-zinc-100 flex items-center gap-2 border-b border-zinc-800 pb-3">
             <span className="material-symbols-outlined text-amber-500">settings</span>
             Parámetros de Configuración
           </h2>
 
-          {/* Room Name Floating Input */}
+          
           <div className="space-y-1">
             <Input
               variant="floating"
@@ -358,9 +357,9 @@ export default function RoomForm(): React.JSX.Element {
             />
           </div>
 
-          {/* Grid Size Inputs */}
+          
           <div className="grid grid-cols-2 gap-4">
-            {/* Rows Count Control */}
+            
             <div className="space-y-2 text-left">
               <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block">
                 Filas
@@ -397,7 +396,7 @@ export default function RoomForm(): React.JSX.Element {
               {rowsError && <p className="text-xs text-red-500 font-medium mt-1" role="alert">{rowsError}</p>}
             </div>
 
-            {/* Columns Count Control */}
+            
             <div className="space-y-2 text-left">
               <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block">
                 Columnas
@@ -435,7 +434,7 @@ export default function RoomForm(): React.JSX.Element {
             </div>
           </div>
 
-          {/* Live Capacity Info panel */}
+          
           <div className="bg-[#111319]/60 border border-zinc-800/40 rounded-xl p-4 flex items-center justify-between transition-all duration-300">
             <div>
               <span className="text-xs text-zinc-400 uppercase tracking-wider block font-semibold">
@@ -455,7 +454,7 @@ export default function RoomForm(): React.JSX.Element {
             </div>
           </div>
 
-          {/* DB Contract Disclaimer Notice */}
+          
           <div className="border border-zinc-800/50 bg-zinc-900/40 rounded-xl p-4 text-xs text-zinc-400 flex items-start gap-2.5 leading-relaxed">
             <span className="material-symbols-outlined text-amber-500 shrink-0 text-[18px]">info</span>
             <div>
@@ -464,7 +463,7 @@ export default function RoomForm(): React.JSX.Element {
             </div>
           </div>
 
-          {/* Action Buttons */}
+          
           <div className="flex gap-4 pt-4 border-t border-zinc-800/60 justify-end">
             <Button
               type="button"
@@ -485,7 +484,7 @@ export default function RoomForm(): React.JSX.Element {
           </div>
         </section>
 
-        {/* Right Side: Seating Matrix Preview */}
+        
         <section className="bg-[#1d1f26] border border-gray-800/40 rounded-2xl p-6 shadow-xl flex flex-col h-full min-h-[500px]">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-zinc-800 pb-3 mb-6">
             <div>
@@ -496,7 +495,7 @@ export default function RoomForm(): React.JSX.Element {
               <p className="text-xs text-zinc-400 mt-1">Haz clic en un asiento para habilitar/deshabilitar.</p>
             </div>
 
-            {/* Visual Legend */}
+            
             <div className="flex flex-wrap gap-3 text-xs">
               <div className="flex items-center gap-1.5">
                 <div className="w-3.5 h-3.5 rounded bg-[#3d4252] border border-transparent shrink-0" />
@@ -509,16 +508,16 @@ export default function RoomForm(): React.JSX.Element {
             </div>
           </div>
 
-          {/* Dark Seating Viewport Pane */}
+          
           <div className="flex-1 bg-[#111319] border border-zinc-800/50 rounded-xl p-6 flex flex-col justify-center items-center overflow-hidden">
             
-            {/* Screen Glow Curved Header */}
+            
             <div className="w-full flex flex-col items-center mb-8 shrink-0">
               <div className="w-3/4 h-1.5 bg-amber-500/20 rounded-t-[100px] border-t border-amber-500 shadow-[0_-5px_15px_rgba(0,241,255,0.4)]" />
               <span className="text-[10px] tracking-[0.3em] font-semibold text-amber-500/70 uppercase mt-2">PANTALLA</span>
             </div>
 
-            {/* Matrix Viewport scroll container */}
+            
             <div className="w-full overflow-x-auto py-4 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-zinc-950">
               <div className="flex flex-col space-y-2 min-w-max px-6 mx-auto w-fit">
                 {Array.from({ length: rowsCount }).map((_, rIdx) => {
@@ -527,12 +526,12 @@ export default function RoomForm(): React.JSX.Element {
 
                   return (
                     <div key={`row-${rowNum}`} className="flex items-center space-x-3">
-                      {/* Row Label */}
+                      
                       <span className="w-5 font-mono text-xs font-bold text-zinc-500 text-center shrink-0 uppercase">
                         {rowLabel}
                       </span>
 
-                      {/* Grid Row */}
+                      
                       <div
                         className="grid gap-1.5"
                         style={{

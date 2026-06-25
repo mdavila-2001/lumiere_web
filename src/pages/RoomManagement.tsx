@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 
-// Asynchronous Coordination Hook to isolate API side effects
 interface UseRoomsResult {
   rooms: Room[];
   isLoading: boolean;
@@ -95,7 +94,7 @@ function useRooms(search: string): UseRoomsResult {
 export default function RoomManagement(): React.JSX.Element {
   const navigate = useNavigate();
 
-  // Search term, debounced before it reaches the backend search endpoint.
+  
   const [searchQuery, setSearchQuery] = React.useState<string>('');
   const [debouncedQuery, setDebouncedQuery] = React.useState<string>('');
 
@@ -106,7 +105,7 @@ export default function RoomManagement(): React.JSX.Element {
 
   const { rooms, isLoading, errorMsg, deleteRoom } = useRooms(debouncedQuery);
 
-  // Decommission workflow state
+  
   const [roomTargetToDelete, setRoomTargetToDelete] = React.useState<Room | null>(null);
   const [isDeleting, setIsDeleting] = React.useState<boolean>(false);
   const [deleteError, setDeleteError] = React.useState<string | null>(null);
@@ -138,14 +137,14 @@ export default function RoomManagement(): React.JSX.Element {
     }
   };
 
-  // High-fidelity table row skeletons during transit
+  
   const dummySkeletonData = React.useMemo(() => {
     return [{ id: 's1' }, { id: 's2' }, { id: 's3' }] as Room[];
   }, []);
 
   const tableData = isLoading ? dummySkeletonData : rooms;
 
-  // Table Column Definitions
+  
   const columns = React.useMemo<ColumnDef<Room>[]>(() => {
     return [
       {
@@ -233,7 +232,7 @@ export default function RoomManagement(): React.JSX.Element {
 
   return (
     <div className="space-y-8 w-full flex flex-col min-h-full font-sans pb-12">
-      {/* ── Control Header Bar Row ────────────────────────────── */}
+      
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-left">
         <div>
           <h1 className="text-3xl font-extrabold text-[#e2e2eb] tracking-tight font-display !m-0 leading-tight">
@@ -249,7 +248,7 @@ export default function RoomManagement(): React.JSX.Element {
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-          {/* Local Search Input */}
+          
           <div className="w-full sm:w-64">
             <Input
               placeholder="Buscar salas..."

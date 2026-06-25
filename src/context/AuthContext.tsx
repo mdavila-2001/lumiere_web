@@ -7,11 +7,6 @@ import type { LoginCredentials, RegisterData, AuthContextProps } from './auth-co
 
 const TOKEN_STORAGE_KEY = 'lumiere_token';
 
-/**
- * Rehydrates the session straight from the persisted JWT (the backend exposes
- * no `/auth/profile` endpoint). Returns `null` when there is no token or it is
- * malformed/expired. Pure read — clearing a stale token is handled in an effect.
- */
 function readPersistedUser(): User | null {
   try {
     const token = localStorage.getItem(TOKEN_STORAGE_KEY);
@@ -70,9 +65,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   React.useEffect(() => {
-    // The session is rehydrated synchronously from the JWT in `readPersistedUser`
-    // (no `/auth/profile` endpoint exists). This effect only purges a stale or
-    // corrupt token from storage so it is never sent on subsequent requests.
     try {
       const token = localStorage.getItem(TOKEN_STORAGE_KEY);
       if (token && !userFromToken(token)) {

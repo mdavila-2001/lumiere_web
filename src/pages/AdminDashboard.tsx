@@ -29,7 +29,6 @@ export default function AdminDashboard(): React.JSX.Element {
   const [isStatsLoading, setIsStatsLoading] = React.useState<boolean>(true);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
 
-  // Formateo dinámico de la fecha actual en español
   const [currentTimestamp] = React.useState<string>(() => {
     return new Date().toLocaleString('es-ES', {
       weekday: 'long',
@@ -73,7 +72,7 @@ export default function AdminDashboard(): React.JSX.Element {
         const showtimesList = showtimesRes.data;
         const bookingsList = bookingsRes.data;
 
-        // Calcular ventas totales a partir de las reservas reales
+        
         let totalRevenue = 0;
         const movieSalesMap: Record<string, number> = {};
 
@@ -82,7 +81,7 @@ export default function AdminDashboard(): React.JSX.Element {
           const price = booking.showtime?.price || 0;
           totalRevenue += seatsCount * price;
 
-          // Agrupar ventas por película para encontrar la más vendida
+          
           const movieTitle = booking.showtime?.movie?.title;
           if (movieTitle) {
             movieSalesMap[movieTitle] = (movieSalesMap[movieTitle] || 0) + seatsCount;
@@ -100,7 +99,7 @@ export default function AdminDashboard(): React.JSX.Element {
 
         const bestMovieDisplay = maxSales > 0 ? maxMovie : '0';
 
-        // --- Calcular Ocupación Real Basada en Asientos Activos ---
+        
         const roomMap = new Map<string, Room>();
         roomsList.forEach(r => roomMap.set(r.id, r));
 
@@ -108,7 +107,7 @@ export default function AdminDashboard(): React.JSX.Element {
         const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
         const todayEnd = todayStart + 24 * 60 * 60 * 1000;
 
-        // Filtrar funciones de hoy
+        
         const todayShowtimes = showtimesList.filter((s) => {
           const t = new Date(s.startTime).getTime();
           return t >= todayStart && t < todayEnd;
@@ -123,11 +122,11 @@ export default function AdminDashboard(): React.JSX.Element {
         showtimesToCalculate.forEach((showtime) => {
           const room = roomMap.get(showtime.roomId);
           if (room) {
-            // Capacidad real es la cantidad de asientos configurados (activos), no la matriz completa
+            
             const roomCapacity = room.seats && room.seats.length > 0 ? room.seats.length : room.capacity;
             totalCapacity += roomCapacity;
 
-            // Sumar reservas de esta función
+            
             const showtimeBookings = bookingsList.filter(b => b.showtimeId === showtime.id);
             showtimeBookings.forEach((booking) => {
               totalReserved += booking.reservedSeats?.length || 0;
@@ -180,17 +179,17 @@ export default function AdminDashboard(): React.JSX.Element {
         </div>
       </div>
 
-      {/* Alerta de error */}
+      
       {errorMsg && (
         <div className="bg-red-950/40 border border-red-500/20 text-red-400 text-sm rounded-xl p-4 font-medium text-left">
           {errorMsg}
         </div>
       )}
 
-      {/* Matriz de tarjetas KPI analíticas */}
+      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {isStatsLoading ? (
-          // Componentes Skeleton animados durante la fase de carga
+          
           Array.from({ length: 3 }).map((_, idx) => (
             <div
               key={idx}
@@ -206,7 +205,7 @@ export default function AdminDashboard(): React.JSX.Element {
           ))
         ) : (
           <>
-            {/* Tarjeta A: Venta Total Real de Todos los Tiempos */}
+            
             <div className="bg-[#1d1f26] rounded-xl p-6 border border-gray-800/50 relative overflow-hidden group hover:border-amber-500/30 transition-colors duration-300">
               <div className="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/5 rounded-full blur-xl group-hover:bg-amber-500/10 transition-colors duration-300"></div>
               <div className="flex justify-between items-start mb-4">
@@ -226,7 +225,7 @@ export default function AdminDashboard(): React.JSX.Element {
               </p>
             </div>
 
-            {/* Tarjeta B: Película Más Vendida */}
+            
             <div className="bg-[#1d1f26] rounded-xl p-6 border border-gray-800/50 relative overflow-hidden group hover:border-amber-500/30 transition-colors duration-300">
               <div className="flex justify-between items-start mb-4">
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider text-left">
@@ -244,7 +243,7 @@ export default function AdminDashboard(): React.JSX.Element {
               </p>
             </div>
 
-            {/* Tarjeta C: Porcentaje de Asientos Ocupados Real */}
+            
             <div className="bg-[#1d1f26] rounded-xl p-6 border border-gray-800/50 relative overflow-hidden group hover:border-amber-500/30 transition-colors duration-300">
               <div className="flex justify-between items-start mb-4">
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider text-left">
@@ -279,7 +278,6 @@ export default function AdminDashboard(): React.JSX.Element {
         )}
       </div>
 
-      {/* Sección de accesos directos de Acciones Rápidas */}
       <section className="bg-[#1d1f26] rounded-xl border border-gray-800 p-6 text-left">
         <h3 className="text-lg font-bold text-[#e2e2eb] mb-4">
           Acciones Rápidas

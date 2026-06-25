@@ -45,7 +45,7 @@ export default function MovieForm({ initialData }: MovieFormProps): React.JSX.El
   const { id } = useParams<{ id: string }>();
   const isEditMode = Boolean(id || initialData);
 
-  // Form State
+  
   const [formState, setFormState] = React.useState<MovieFormState>(() => ({
     title: initialData?.title ?? '',
     synopsis: initialData?.synopsis ?? '',
@@ -55,7 +55,7 @@ export default function MovieForm({ initialData }: MovieFormProps): React.JSX.El
     posterFile: null,
   }));
 
-  // UI States
+  
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
   const [dragActive, setDragActive] = React.useState<boolean>(false);
@@ -65,7 +65,7 @@ export default function MovieForm({ initialData }: MovieFormProps): React.JSX.El
     initialData ? initialData.title.toLowerCase() !== 'midnight protocol' : true
   );
 
-  // Fetch movie data if in edit mode and initialData not provided
+  
   React.useEffect(() => {
     let isMounted = true;
 
@@ -90,7 +90,7 @@ export default function MovieForm({ initialData }: MovieFormProps): React.JSX.El
               rating: res.data.rating,
               posterFile: null,
             });
-            // Assume it's active based on title constraint
+            
             setIsActiveListing(res.data.title.toLowerCase() !== 'midnight protocol');
           }
         } catch (err: unknown) {
@@ -118,13 +118,13 @@ export default function MovieForm({ initialData }: MovieFormProps): React.JSX.El
     };
   }, [id, initialData]);
 
-  // Derive the local preview URL from the selected file (no state/effect needed)
+  
   const previewUrl = React.useMemo(
     () => (formState.posterFile ? URL.createObjectURL(formState.posterFile) : null),
     [formState.posterFile]
   );
 
-  // Memory Safety Rule: revoke the object URL when it changes or on unmount
+  
   React.useEffect(() => {
     return () => {
       if (previewUrl) {
@@ -133,7 +133,7 @@ export default function MovieForm({ initialData }: MovieFormProps): React.JSX.El
     };
   }, [previewUrl]);
 
-  // Drag & Drop handlers
+  
   const handleDrag = (e: React.DragEvent): void => {
     e.preventDefault();
     e.stopPropagation();
@@ -174,13 +174,13 @@ export default function MovieForm({ initialData }: MovieFormProps): React.JSX.El
     }
   };
 
-  // Submit operations
+  
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMsg(null);
 
-    // Validation guard checks
+    
     if (!formState.title.trim()) {
       setErrorMsg('El título de la película es requerido.');
       setIsSubmitting(false);
@@ -235,7 +235,7 @@ export default function MovieForm({ initialData }: MovieFormProps): React.JSX.El
         });
       }
 
-      // Navigate back to listing page on success
+      
       navigate('/admin/movies');
     } catch (err: unknown) {
       console.error('Failed to submit movie asset:', err);
@@ -251,7 +251,7 @@ export default function MovieForm({ initialData }: MovieFormProps): React.JSX.El
     }
   };
 
-  // Determine existing image preview if editing and no local file selected
+  
   const activeMovieObj = initialData || fetchedMovie;
   const existingPosterUrl = activeMovieObj?.posterUrl
     ? (activeMovieObj.posterUrl.startsWith('http')
@@ -277,7 +277,7 @@ export default function MovieForm({ initialData }: MovieFormProps): React.JSX.El
 
   return (
     <div className="max-w-5xl mx-auto w-full text-left font-sans pb-12 space-y-8">
-      {/* ── Breadcrumbs & Discard Row ──────────────────────────── */}
+      
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <nav className="flex items-center gap-2 text-xs text-zinc-500 font-semibold mb-2">
@@ -305,7 +305,7 @@ export default function MovieForm({ initialData }: MovieFormProps): React.JSX.El
         </Button>
       </div>
 
-      {/* ── Global Exception Errors Banner ──────────────────────── */}
+      
       {errorMsg && (
         <div className="bg-[#93000a] text-[#ffb4ab] border border-red-500/20 rounded-xl p-4 text-sm shadow-lg">
           <p className="font-semibold flex items-center gap-2">
@@ -315,20 +315,20 @@ export default function MovieForm({ initialData }: MovieFormProps): React.JSX.El
         </div>
       )}
 
-      {/* ── Centered Premium Glassmorphic Container Panel ────────── */}
+      
       <div className="glass-panel rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden bg-[#1d1f26]/80">
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           
-          {/* Left Column: Basic Info & Synopsis */}
+          
           <div className="space-y-6">
             
-            {/* Card 1: Basic Info */}
+            
             <div className="bg-[#15171c]/50 border border-gray-800/30 rounded-2xl p-6 space-y-6 shadow-md">
               <h3 className="text-base font-bold text-zinc-200 border-b border-gray-800/40 pb-3 font-display">
                 Información Básica
               </h3>
 
-              {/* Title input using custom Input component */}
+              
               <Input
                 id="title"
                 variant="floating"
@@ -339,7 +339,7 @@ export default function MovieForm({ initialData }: MovieFormProps): React.JSX.El
               />
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {/* Duration input using custom Input component */}
+                
                 <div className="sm:col-span-1">
                   <Input
                     id="duration"
@@ -388,13 +388,13 @@ export default function MovieForm({ initialData }: MovieFormProps): React.JSX.El
               </div>
             </div>
 
-            {/* Card 2: Synopsis and Listing status */}
+            
             <div className="bg-[#15171c]/50 border border-gray-800/30 rounded-2xl p-6 space-y-6 shadow-md">
               <h3 className="text-base font-bold text-zinc-200 border-b border-gray-800/40 pb-3 font-display">
                 Detalles Adicionales
               </h3>
 
-              {/* Synopsis Textarea */}
+              
               <div className="flex flex-col gap-1.5 text-left">
                 <label htmlFor="synopsis" className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                   Sinopsis de la Película
@@ -442,7 +442,7 @@ export default function MovieForm({ initialData }: MovieFormProps): React.JSX.El
 
           </div>
 
-          {/* Right Column: Poster Upload Block (uses shared FileInput component) */}
+          
           <div className="bg-[#15171c]/50 border border-gray-800/30 rounded-2xl p-6 shadow-md flex flex-col h-full min-h-[460px]">
             <div className="flex items-center justify-between border-b border-gray-800/40 pb-3 mb-6">
               <h3 className="text-base font-bold text-zinc-200 font-display">
@@ -456,7 +456,7 @@ export default function MovieForm({ initialData }: MovieFormProps): React.JSX.El
               )}
             </div>
 
-            {/* Drag & drop wrapper around the shared FileInput */}
+            
             <div
               onDragEnter={handleDrag}
               onDragOver={handleDrag}
@@ -475,7 +475,7 @@ export default function MovieForm({ initialData }: MovieFormProps): React.JSX.El
               />
             </div>
 
-            {/* Contextual metadata under the uploader */}
+            
             <div className="mt-4 text-center">
               {formState.posterFile ? (
                 <p className="font-mono text-[11px] text-zinc-500 truncate">

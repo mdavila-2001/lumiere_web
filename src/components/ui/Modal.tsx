@@ -89,7 +89,7 @@ export const Modal: React.FC<ModalProps> = ({
         <span className="material-symbols-outlined text-[24px]">close</span>
       </button>
 
-      {/* Modal Header */}
+      
       {title && (
         <header className="px-6 py-4 border-b border-surface-bright/10 pr-12 text-left shrink-0">
           <h2 id="modal-title" className="text-lg font-bold text-on-surface m-0">
@@ -98,12 +98,12 @@ export const Modal: React.FC<ModalProps> = ({
         </header>
       )}
 
-      {/* Modal Body / Main Content */}
+      
       <div className="px-6 py-5 overflow-y-auto flex-grow text-left text-sm text-on-surface-variant">
         {children}
       </div>
 
-      {/* Modal Footer Slot */}
+      
       {footer && (
         <footer className="px-6 py-4 border-t border-surface-bright/10 bg-surface-container-low flex justify-end gap-3 shrink-0">
           {footer}

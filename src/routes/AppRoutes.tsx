@@ -9,6 +9,7 @@ import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import MovieDetails from '@/pages/MovieDetails';
 import SeatMap from '@/pages/SeatMap';
+import MyBookings from '@/pages/MyBookings';
 import AdminDashboard from '@/pages/AdminDashboard';
 import MovieManagement from '@/pages/MovieManagement';
 import MovieForm from '@/pages/MovieForm';
@@ -28,6 +29,7 @@ export const AppRoutes: React.FC = () => {
 
       <Route element={<ProtectedRoute allowedRoles={[UserRole.CUSTOMER, UserRole.ADMIN]} />}>
         <Route path={ROUTES.BOOKING} element={<SeatMap />} />
+        <Route path={ROUTES.MY_BOOKINGS} element={<MyBookings />} />
       </Route>
 
       <Route element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]} />}>

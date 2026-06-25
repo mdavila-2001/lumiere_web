@@ -10,11 +10,10 @@ import { Button } from '@/components/ui/Button';
 
 const imageBaseUrl = import.meta.env.VITE_IMAGE_URL || 'http://localhost:3000';
 
-// Strict shape mirroring the backend CreateShowtimeDto contract.
 interface ShowtimeFormState {
   movieId: string;
   roomId: string;
-  startTime: string; // Bound to a <input type="datetime-local" /> (local wall time).
+  startTime: string; 
   price: number;
 }
 
@@ -25,14 +24,11 @@ interface FieldErrors {
   price?: string;
 }
 
-// Resolve a possibly-relative poster path against the asset host.
 function resolvePosterUrl(posterUrl: string | undefined): string | null {
   if (!posterUrl) return null;
   return posterUrl.startsWith('http') ? posterUrl : `${imageBaseUrl}${posterUrl}`;
 }
 
-// Convert an ISO timestamp into the "YYYY-MM-DDTHH:mm" string the native
-// datetime-local control expects, expressed in the user's local timezone.
 function isoToLocalInput(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return '';
@@ -57,12 +53,12 @@ export default function ShowtimeForm(): React.JSX.Element {
   const { id } = useParams<{ id: string }>();
   const isEditMode = Boolean(id);
 
-  // Dependency resource pipelines
+  
   const [movies, setMovies] = React.useState<Movie[]>([]);
   const [rooms, setRooms] = React.useState<Room[]>([]);
   const [isLoadingDeps, setIsLoadingDeps] = React.useState<boolean>(true);
 
-  // Form model
+  
   const [formState, setFormState] = React.useState<ShowtimeFormState>({
     movieId: '',
     roomId: '',
@@ -70,13 +66,13 @@ export default function ShowtimeForm(): React.JSX.Element {
     price: 0,
   });
 
-  // UI lifecycle flags & error contexts
+  
   const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
   const [fieldErrors, setFieldErrors] = React.useState<FieldErrors>({});
   const [submitError, setSubmitError] = React.useState<string | null>(null);
   const [isConflict, setIsConflict] = React.useState<boolean>(false);
 
-  // ── Dependency Orchestration: load movies + rooms in parallel ───────────
+  
   React.useEffect(() => {
     let isMounted = true;
 
@@ -104,8 +100,8 @@ export default function ShowtimeForm(): React.JSX.Element {
 
         if (showtimeRes) {
           const showtime = showtimeRes.data;
-          // Postgres `numeric` columns are serialised as strings by TypeORM;
-          // parse explicitly to avoid broken Number.isFinite() validation.
+          
+          
           const parsedPrice = typeof showtime.price === 'string'
             ? parseFloat(showtime.price as unknown as string)
             : showtime.price;
@@ -139,7 +135,7 @@ export default function ShowtimeForm(): React.JSX.Element {
     };
   }, [isEditMode, id]);
 
-  // ── Derived preview data (real values from the chosen resources) ─────────
+  
   const selectedMovie = React.useMemo(
     () => movies.find((m) => m.id === formState.movieId) ?? null,
     [movies, formState.movieId]
@@ -149,9 +145,9 @@ export default function ShowtimeForm(): React.JSX.Element {
     [rooms, formState.roomId]
   );
 
-  // Real bookable capacity = active seats persisted in the DB. The room's
-  // `capacity` column is DB-generated as rows×columns (full grid), so it does
-  // NOT reflect disabled seats; prefer the seats relation when present.
+  
+  
+  
   const realSeatCount = React.useMemo<number | null>(() => {
     if (!selectedRoom) return null;
     return selectedRoom.seats?.length ?? selectedRoom.capacity;
@@ -164,7 +160,7 @@ export default function ShowtimeForm(): React.JSX.Element {
     return new Date(start.getTime() + selectedMovie.duration * 60_000);
   }, [selectedMovie, formState.startTime]);
 
-  // ── Select option pipelines (loading-aware) ─────────────────────────────
+  
   const movieOptions = React.useMemo(() => {
     if (isLoadingDeps) {
       return [{ value: '', label: 'Cargando catálogo de películas...' }];
@@ -185,7 +181,7 @@ export default function ShowtimeForm(): React.JSX.Element {
     ];
   }, [isLoadingDeps, rooms]);
 
-  // ── Client-side validation gate ─────────────────────────────────────────
+  
   const validate = (): boolean => {
     const errors: FieldErrors = {};
 
@@ -203,8 +199,8 @@ export default function ShowtimeForm(): React.JSX.Element {
       if (Number.isNaN(start.getTime())) {
         errors.startTime = 'La fecha y hora no son válidas.';
       } else if (!isEditMode && start.getTime() <= Date.now()) {
-        // Only enforce future-date when creating. In edit mode the admin may
-        // save without touching the time (e.g. only updating the price).
+        
+        
         errors.startTime = 'La función debe programarse en una fecha futura.';
       }
     }
@@ -217,7 +213,7 @@ export default function ShowtimeForm(): React.JSX.Element {
     return Object.keys(errors).length === 0;
   };
 
-  // ── Submission interception ─────────────────────────────────────────────
+  
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setSubmitError(null);
@@ -225,7 +221,7 @@ export default function ShowtimeForm(): React.JSX.Element {
 
     if (!validate()) return;
 
-    // Normalise the local wall-time string into a strict UTC ISO record.
+    
     const startIso = new Date(formState.startTime).toISOString();
 
     const payload = {
@@ -271,7 +267,7 @@ export default function ShowtimeForm(): React.JSX.Element {
   return (
     <div className="max-w-6xl mx-auto w-full text-left font-sans pb-12 space-y-8">
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* ── Header & Primary Actions ──────────────────────────── */}
+        
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <nav className="flex items-center gap-2 text-xs text-zinc-500 font-semibold mb-2">
@@ -312,7 +308,7 @@ export default function ShowtimeForm(): React.JSX.Element {
           </div>
         </header>
 
-        {/* ── Exception Ribbon (409 conflict = amber warning) ───── */}
+        
         {submitError && (
           <div
             className={`rounded-xl p-4 text-sm shadow-lg border ${
@@ -330,11 +326,11 @@ export default function ShowtimeForm(): React.JSX.Element {
           </div>
         )}
 
-        {/* ── Two-column workspace ──────────────────────────────── */}
+        
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          {/* Left: form fields */}
+          
           <div className="lg:col-span-2 space-y-8">
-            {/* Primary Details */}
+            
             <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 space-y-6 shadow-xl">
               <h2 className="text-xl font-bold text-zinc-100 flex items-center gap-2 border-b border-zinc-800 pb-3">
                 <span className="material-symbols-outlined text-amber-500">movie</span>
@@ -370,7 +366,7 @@ export default function ShowtimeForm(): React.JSX.Element {
               </div>
             </section>
 
-            {/* Schedule & Ticketing */}
+            
             <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 space-y-6 shadow-xl">
               <h2 className="text-xl font-bold text-zinc-100 flex items-center gap-2 border-b border-zinc-800 pb-3">
                 <span className="material-symbols-outlined text-amber-500">event</span>
@@ -415,7 +411,7 @@ export default function ShowtimeForm(): React.JSX.Element {
             </section>
           </div>
 
-          {/* Right: Session Context preview (real data only) */}
+          
           <aside className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-xl space-y-6 lg:sticky lg:top-6">
             <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
               <h2 className="text-base font-bold text-zinc-100 flex items-center gap-2">
@@ -427,7 +423,7 @@ export default function ShowtimeForm(): React.JSX.Element {
               </span>
             </div>
 
-            {/* Movie preview */}
+            
             <div className="flex gap-4">
               <div className="h-28 w-20 shrink-0 rounded-lg overflow-hidden bg-zinc-800 border border-zinc-700/50 flex items-center justify-center">
                 {posterPreview ? (
@@ -464,7 +460,7 @@ export default function ShowtimeForm(): React.JSX.Element {
               </div>
             </div>
 
-            {/* Auditorium specs (real room fields) */}
+            
             <div>
               <h4 className="text-[11px] uppercase tracking-wider font-bold text-zinc-500 mb-3">
                 Especificaciones de la Sala
@@ -480,7 +476,7 @@ export default function ShowtimeForm(): React.JSX.Element {
               </div>
             </div>
 
-            {/* Estimated timeline (start → estimated end via real runtime) */}
+            
             <div className="border-t border-zinc-800 pt-4">
               <h4 className="text-[11px] uppercase tracking-wider font-bold text-zinc-500 mb-3">
                 Línea de Tiempo Estimada

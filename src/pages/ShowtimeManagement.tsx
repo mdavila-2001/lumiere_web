@@ -11,8 +11,6 @@ import { Modal } from '@/components/ui/Modal';
 
 const imageBaseUrl = import.meta.env.VITE_IMAGE_URL || 'http://localhost:3000';
 
-// Resolve a possibly-relative poster path (e.g. "/uploads/...") against the
-// asset host so the <img> loads from the backend, not the Vite dev origin.
 function resolvePosterUrl(posterUrl: string | undefined): string | undefined {
   if (!posterUrl) return undefined;
   return posterUrl.startsWith('http') ? posterUrl : `${imageBaseUrl}${posterUrl}`;
@@ -44,8 +42,6 @@ function formatTimeOnly(iso: string): string {
   }).format(date);
 }
 
-// Postgres `numeric` columns are serialised as strings by TypeORM, so coerce
-// before formatting to avoid a broken Number.isFinite() check on "45.00".
 function formatPrice(price: number | string): string {
   const numeric = typeof price === 'string' ? Number.parseFloat(price) : price;
   if (!Number.isFinite(numeric)) return '—';
@@ -55,7 +51,6 @@ function formatPrice(price: number | string): string {
   }).format(numeric);
 }
 
-// ── Poster thumbnail with graceful fallback when the asset is missing ───────
 const PosterThumb: React.FC<{ src?: string; alt: string }> = ({ src, alt }) => {
   const [hasError, setHasError] = React.useState<boolean>(false);
 
@@ -77,7 +72,6 @@ const PosterThumb: React.FC<{ src?: string; alt: string }> = ({ src, alt }) => {
   );
 };
 
-// ── Asynchronous Coordination Hook to isolate API side effects ──────────────
 interface UseShowtimesResult {
   showtimes: Showtime[];
   isLoading: boolean;
@@ -163,7 +157,7 @@ function useShowtimes(search: string): UseShowtimesResult {
 export default function ShowtimeManagement(): React.JSX.Element {
   const navigate = useNavigate();
 
-  // Search term, debounced before it reaches the backend search endpoint.
+  
   const [searchQuery, setSearchQuery] = React.useState<string>('');
   const [debouncedQuery, setDebouncedQuery] = React.useState<string>('');
 
@@ -174,7 +168,7 @@ export default function ShowtimeManagement(): React.JSX.Element {
 
   const { showtimes, isLoading, errorMsg, cancelShowtime } = useShowtimes(debouncedQuery);
 
-  // Cancellation workflow state
+  
   const [showtimeTargetToDelete, setShowtimeTargetToDelete] = React.useState<Showtime | null>(null);
   const [isDeleting, setIsDeleting] = React.useState<boolean>(false);
   const [deleteError, setDeleteError] = React.useState<string | null>(null);
@@ -206,14 +200,14 @@ export default function ShowtimeManagement(): React.JSX.Element {
     }
   };
 
-  // High-fidelity table row skeletons during transit
+  
   const dummySkeletonData = React.useMemo(() => {
     return [{ id: 's1' }, { id: 's2' }, { id: 's3' }] as Showtime[];
   }, []);
 
   const tableData = isLoading ? dummySkeletonData : showtimes;
 
-  // Table Column Definitions
+  
   const columns = React.useMemo<ColumnDef<Showtime>[]>(() => {
     return [
       {
@@ -362,7 +356,7 @@ export default function ShowtimeManagement(): React.JSX.Element {
 
   return (
     <div className="space-y-8 w-full flex flex-col min-h-full font-sans pb-12">
-      {/* ── Control Header Bar Row ────────────────────────────── */}
+      
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-left">
         <div>
           <h1 className="text-3xl font-extrabold text-[#e2e2eb] tracking-tight font-display !m-0 leading-tight">

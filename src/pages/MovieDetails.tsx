@@ -3,6 +3,9 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import api, { ApiError } from '@/services/api';
 import type { Movie } from '@/interfaces/movie.interface';
 import type { Showtime } from '@/interfaces/showtime.interface';
+import { Modal } from '@/components/ui/Modal';
+import { Button } from '@/components/ui/Button';
+import { useAuth } from '@/hooks/use-auth';
 
 const imageBaseUrl = import.meta.env.VITE_IMAGE_URL || 'http://localhost:3000';
 
@@ -11,7 +14,6 @@ function resolvePosterUrl(posterUrl: string | undefined): string | undefined {
   return posterUrl.startsWith('http') ? posterUrl : `${imageBaseUrl}${posterUrl}`;
 }
 
-// Runtime helper: raw integer minutes → compact "Xh Ym" notation (142 → "2h 22m").
 function formatRuntime(totalMinutes: number): string {
   if (!Number.isFinite(totalMinutes) || totalMinutes <= 0) return '—';
   const minutes = Math.round(totalMinutes);
@@ -22,7 +24,6 @@ function formatRuntime(totalMinutes: number): string {
   return `${hours}h ${mins}m`;
 }
 
-// Stable local-date key (YYYY-MM-DD) used to group/compare showtimes by day.
 function toDateKey(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return '';
@@ -63,6 +64,7 @@ interface DateOption {
 export default function MovieDetails(): React.JSX.Element {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   const [movie, setMovie] = React.useState<Movie | null>(null);
   const [showtimes, setShowtimes] = React.useState<Showtime[]>([]);
@@ -70,7 +72,30 @@ export default function MovieDetails(): React.JSX.Element {
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
   const [selectedDate, setSelectedDate] = React.useState<string>('');
 
-  // ── Dual network coordination: movie profile + its showtimes ────────────
+  
+  
+  const [authPromptShowtimeId, setAuthPromptShowtimeId] = React.useState<string | null>(null);
+
+  
+  
+  const handleReserveClick = (showtime: Showtime): void => {
+    if (isAuthenticated) {
+      navigate(`/booking/${showtime.id}`);
+    } else {
+      setAuthPromptShowtimeId(showtime.id);
+    }
+  };
+
+  const handleGoToLogin = (): void => {
+    const target = authPromptShowtimeId;
+    setAuthPromptShowtimeId(null);
+    
+    navigate('/login', {
+      state: target ? { from: { pathname: `/booking/${target}` } } : undefined,
+    });
+  };
+
+  
   React.useEffect(() => {
     if (!id) return;
     let isMounted = true;
@@ -109,7 +134,7 @@ export default function MovieDetails(): React.JSX.Element {
     };
   }, [id]);
 
-  // Unique, chronologically-sorted dates extracted from the showtimes list.
+  
   const dateOptions = React.useMemo<DateOption[]>(() => {
     const seen = new Map<string, string>();
     showtimes.forEach((st) => {
@@ -123,28 +148,24 @@ export default function MovieDetails(): React.JSX.Element {
       .sort((a, b) => a.key.localeCompare(b.key));
   }, [showtimes]);
 
-  // Default the ribbon to the earliest available date once data arrives.
-  React.useEffect(() => {
-    if (dateOptions.length === 0) {
-      setSelectedDate('');
-      return;
-    }
-    setSelectedDate((current) => {
-      const stillValid = dateOptions.some((option) => option.key === current);
-      return stillValid ? current : dateOptions[0].key;
-    });
-  }, [dateOptions]);
+  
+  
+  const activeDate = React.useMemo<string>(() => {
+    if (dateOptions.length === 0) return '';
+    const isValid = dateOptions.some((option) => option.key === selectedDate);
+    return isValid ? selectedDate : dateOptions[0].key;
+  }, [dateOptions, selectedDate]);
 
-  // Showtimes for the active date, ordered by start time.
+  
   const showtimesForSelectedDate = React.useMemo<Showtime[]>(() => {
     return showtimes
-      .filter((st) => toDateKey(st.startTime) === selectedDate)
+      .filter((st) => toDateKey(st.startTime) === activeDate)
       .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
-  }, [showtimes, selectedDate]);
+  }, [showtimes, activeDate]);
 
   const posterUrl = resolvePosterUrl(movie?.posterUrl);
 
-  // ── Loading skeleton ────────────────────────────────────────────────────
+  
   if (isPageLoading) {
     return (
       <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans">
@@ -161,7 +182,7 @@ export default function MovieDetails(): React.JSX.Element {
     );
   }
 
-  // ── Not found / error fallback ──────────────────────────────────────────
+  
   if (!movie) {
     return (
       <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center justify-center p-6 text-center gap-4">
@@ -182,7 +203,7 @@ export default function MovieDetails(): React.JSX.Element {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans">
-      {/* ── Slim top bar ──────────────────────────────────────────────── */}
+      
       <header className="sticky top-0 z-30 w-full bg-zinc-950/70 backdrop-blur-md border-b border-zinc-800/60 px-6 h-16 flex items-center justify-between">
         <Link to="/" className="text-amber-500 text-xl font-extrabold tracking-tight hover:text-amber-600 transition-colors">
           Lumiére
@@ -197,9 +218,9 @@ export default function MovieDetails(): React.JSX.Element {
         </button>
       </header>
 
-      {/* ── Cinematic hero ────────────────────────────────────────────── */}
+      
       <section className="relative">
-        {/* Blurred backdrop mirror of the poster + black gradient veil */}
+        
         <div className="absolute inset-0 overflow-hidden">
           {posterUrl && (
             <img
@@ -213,9 +234,9 @@ export default function MovieDetails(): React.JSX.Element {
           <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/60 to-transparent" />
         </div>
 
-        {/* Content grid */}
+        
         <div className="relative max-w-6xl mx-auto px-6 pt-12 pb-16 grid grid-cols-1 lg:grid-cols-[260px_1fr_360px] gap-8 items-start">
-          {/* Left: crisp poster card */}
+          
           <div className="rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900 shadow-2xl aspect-[2/3] w-full max-w-[260px]">
             {posterUrl ? (
               <img src={posterUrl} alt={movie.title} className="w-full h-full object-cover" />
@@ -226,7 +247,7 @@ export default function MovieDetails(): React.JSX.Element {
             )}
           </div>
 
-          {/* Middle: metadata */}
+          
           <div className="text-left pt-2 lg:pt-8">
             <h1 className="text-4xl sm:text-5xl font-extrabold text-zinc-50 tracking-tight font-display leading-tight">
               {movie.title}
@@ -246,7 +267,7 @@ export default function MovieDetails(): React.JSX.Element {
             </p>
           </div>
 
-          {/* Right: Showtimes panel */}
+          
           <aside className="bg-zinc-900/90 backdrop-blur border border-zinc-800 rounded-2xl p-5 shadow-2xl w-full lg:mt-4">
             <h2 className="text-lg font-bold text-zinc-100 mb-4">Funciones Disponibles</h2>
 
@@ -259,10 +280,10 @@ export default function MovieDetails(): React.JSX.Element {
               </div>
             ) : (
               <>
-                {/* Date selection ribbon */}
+                
                 <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-thin scrollbar-thumb-zinc-800">
                   {dateOptions.map((option) => {
-                    const isActive = option.key === selectedDate;
+                    const isActive = option.key === activeDate;
                     return (
                       <button
                         key={option.key}
@@ -285,7 +306,7 @@ export default function MovieDetails(): React.JSX.Element {
                   })}
                 </div>
 
-                {/* Showtime allocation cards */}
+                
                 <div className="mt-5 space-y-3">
                   {showtimesForSelectedDate.length === 0 ? (
                     <p className="text-sm text-zinc-500 text-center py-4">
@@ -307,7 +328,7 @@ export default function MovieDetails(): React.JSX.Element {
                         </div>
                         <button
                           type="button"
-                          onClick={() => navigate(`/booking/${st.id}`)}
+                          onClick={() => handleReserveClick(st)}
                           className="shrink-0 bg-amber-500 text-zinc-950 text-sm font-bold px-4 py-2 rounded-lg hover:bg-amber-600 active:scale-95 transition-all cursor-pointer"
                         >
                           Reservar
@@ -321,6 +342,32 @@ export default function MovieDetails(): React.JSX.Element {
           </aside>
         </div>
       </section>
+
+      
+      <Modal
+        isOpen={authPromptShowtimeId !== null}
+        onClose={() => setAuthPromptShowtimeId(null)}
+        title="Inicia sesión para reservar"
+        size="sm"
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setAuthPromptShowtimeId(null)}>
+              Cerrar
+            </Button>
+            <Button
+              onClick={handleGoToLogin}
+              className="!bg-amber-500 hover:!bg-amber-600 !text-zinc-950 font-bold"
+            >
+              Iniciar Sesión
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-zinc-300 leading-relaxed text-left">
+          Necesitas iniciar sesión en tu cuenta para reservar tus asientos. Inicia sesión y
+          retomaremos tu reserva donde la dejaste.
+        </p>
+      </Modal>
     </div>
   );
 }
