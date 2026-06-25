@@ -92,7 +92,7 @@ export const Modal: React.FC<ModalProps> = ({
       {/* Modal Header */}
       {title && (
         <header className="px-6 py-4 border-b border-surface-bright/10 pr-12 text-left shrink-0">
-          <h2 id="modal-title" className="text-lg font-bold text-on-surface">
+          <h2 id="modal-title" className="text-lg font-bold text-on-surface m-0">
             {title}
           </h2>
         </header>

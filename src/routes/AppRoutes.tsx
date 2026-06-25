@@ -13,7 +13,9 @@ import AdminDashboard from '@/pages/AdminDashboard';
 import MovieManagement from '@/pages/MovieManagement';
 import MovieForm from '@/pages/MovieForm';
 import RoomManagement from '@/pages/RoomManagement';
+import RoomForm from '@/pages/RoomForm';
 import ShowtimeManagement from '@/pages/ShowtimeManagement';
+import ShowtimeForm from '@/pages/ShowtimeForm';
 import TestComponents from '@/TestComponents';
 import AdminLayout from '@/layouts/AdminLayout';
 
@@ -46,7 +48,11 @@ export const AppRoutes: React.FC = () => {
           <Route path={ROUTES.ADMIN_MOVIE_NEW} element={<MovieForm />} />
           <Route path={ROUTES.ADMIN_MOVIE_EDIT} element={<MovieForm />} />
           <Route path={ROUTES.ADMIN_ROOMS} element={<RoomManagement />} />
+          <Route path={ROUTES.ADMIN_ROOMS_NEW} element={<RoomForm />} />
+          <Route path={ROUTES.ADMIN_ROOMS_EDIT} element={<RoomForm />} />
           <Route path={ROUTES.ADMIN_SHOWTIMES} element={<ShowtimeManagement />} />
+          <Route path={ROUTES.ADMIN_SHOWTIMES_NEW} element={<ShowtimeForm />} />
+          <Route path={ROUTES.ADMIN_SHOWTIMES_EDIT} element={<ShowtimeForm />} />
         </Route>
       </Route>
     </Routes>

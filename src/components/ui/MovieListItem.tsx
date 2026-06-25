@@ -119,7 +119,9 @@ export const MovieListItem: React.FC<MovieListItemProps> = ({
                 Estreno
               </span>
               <span className="text-sm text-on-surface font-sans">
-                {formatReleaseDate(movie.createdAt)}
+                {dailyShowsCount && dailyShowsCount > 0
+                  ? formatReleaseDate(movie.createdAt)
+                  : 'Muy pronto'}
               </span>
             </div>
 

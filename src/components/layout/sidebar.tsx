@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
+import { Modal } from '@/components/ui/Modal';
+import { Button } from '@/components/ui/Button';
 
 export interface SidebarProps {
   onNewScreeningClick?: () => void;
@@ -21,13 +23,17 @@ const mainNavItems: NavItem[] = [
 
 export const Sidebar: React.FC<SidebarProps> = ({ onNewScreeningClick }) => {
   const { logout } = useAuth();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = React.useState(false);
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
-  const handleLogout = async (): Promise<void> => {
+  const handleConfirmLogout = async (): Promise<void> => {
+    setIsLoggingOut(true);
     try {
       await logout();
       window.location.href = '/login';
     } catch (error) {
       console.error('Fallo al cerrar sesión:', error);
+      setIsLoggingOut(false);
     }
   };
 
@@ -83,13 +89,50 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewScreeningClick }) => {
 
       <div className="flex flex-col gap-1.5 mt-auto pt-4 border-t border-gray-800/50">
         <button
-          onClick={handleLogout}
+          onClick={() => setIsLogoutModalOpen(true)}
           className="flex items-center gap-3.5 py-2 px-4 rounded-xl text-[11px] text-red-400 hover:bg-red-950/20 hover:text-red-300 transition-all duration-200 cursor-pointer font-semibold border-none outline-none text-left w-full bg-transparent"
         >
           <span className="material-symbols-outlined text-[16px]">logout</span>
           <span>Cerrar Sesión</span>
         </button>
       </div>
+
+      {isLogoutModalOpen && (
+        <Modal
+          isOpen={true}
+          onClose={() => {
+            if (!isLoggingOut) setIsLogoutModalOpen(false);
+          }}
+          title="Cerrar Sesión"
+          size="sm"
+          footer={
+            <div className="flex gap-3 justify-end w-full font-sans">
+              <Button
+                variant="outline"
+                onClick={() => setIsLogoutModalOpen(false)}
+                disabled={isLoggingOut}
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant="danger"
+                onClick={handleConfirmLogout}
+                isLoading={isLoggingOut}
+                className="cursor-pointer"
+              >
+                Cerrar Sesión
+              </Button>
+            </div>
+          }
+        >
+          <div className="space-y-4 text-left font-sans">
+            <p className="text-zinc-300 text-sm leading-relaxed">
+              ¿Estás seguro de que deseas cerrar sesión? Deberás volver a iniciar
+              sesión para acceder al panel de administración.
+            </p>
+          </div>
+        </Modal>
+      )}
     </nav>
   );
 };

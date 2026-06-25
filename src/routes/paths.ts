@@ -22,7 +22,11 @@ export const ROUTES = {
   ADMIN_MOVIE_NEW: '/admin/movies/new',
   ADMIN_MOVIE_EDIT: '/admin/movies/edit/:id',
   ADMIN_ROOMS: '/admin/rooms',
+  ADMIN_ROOMS_NEW: '/admin/rooms/new',
+  ADMIN_ROOMS_EDIT: '/admin/rooms/edit/:id',
   ADMIN_SHOWTIMES: '/admin/showtimes',
+  ADMIN_SHOWTIMES_NEW: '/admin/showtimes/new',
+  ADMIN_SHOWTIMES_EDIT: '/admin/showtimes/edit/:id',
 } as const;
 
 /**
