@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Navigate, Outlet, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import type { UserRole } from '@/interfaces/user.interface';
+import { ROUTES } from '@/routes/paths';
 
 interface ProtectedRouteProps {
   allowedRoles: UserRole[];
@@ -24,7 +25,7 @@ export const ForbiddenPage: React.FC = () => {
         </div>
         <div>
           <Link
-            to="/"
+            to={ROUTES.HOME}
             className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold bg-amber-500 text-zinc-950 hover:bg-amber-600 rounded-md transition-colors"
           >
             Return to Homepage
@@ -54,7 +55,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) 
   }
 
   if (!isAuthenticated || !user) {
-    return <Navigate to="/login" replace state={{ from: location }} />;
+    return <Navigate to={ROUTES.LOGIN} replace state={{ from: location }} />;
   }
 
   if (!allowedRoles.includes(user.role)) {

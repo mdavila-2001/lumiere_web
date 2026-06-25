@@ -1,46 +1,13 @@
 import * as React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
-import { ProtectedRoute } from '@/components/ProtectedRoute';
-
-import Home from '@/pages/Home';
-import Login from '@/pages/Login';
-import Register from '@/pages/Register';
-import MovieDetails from '@/pages/MovieDetails';
-import SeatMap from '@/pages/SeatMap';
-import AdminDashboard from '@/pages/AdminDashboard';
-import MovieManagement from '@/pages/MovieManagement';
-import MovieForm from '@/pages/MovieForm';
-import RoomManagement from '@/pages/RoomManagement';
-import ShowtimeManagement from '@/pages/ShowtimeManagement';
-import TestComponents from '@/TestComponents';
-import AdminLayout from '@/layouts/AdminLayout';
+import { AppRoutes } from '@/routes/AppRoutes';
 
 export default function App(): React.JSX.Element {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/movie/:id" element={<MovieDetails />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/test" element={<TestComponents />} />
-
-          <Route element={<ProtectedRoute allowedRoles={['CUSTOMER', 'ADMIN']} />}>
-            <Route path="/booking/:showtimeId" element={<SeatMap />} />
-          </Route>
-          <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-            <Route element={<AdminLayout />}>
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/movies" element={<MovieManagement />} />
-              <Route path="/admin/movies/new" element={<MovieForm />} />
-              <Route path="/admin/movies/edit/:id" element={<MovieForm />} />
-              <Route path="/admin/rooms" element={<RoomManagement />} />
-              <Route path="/admin/showtimes" element={<ShowtimeManagement />} />
-            </Route>
-          </Route>
-        </Routes>
+        <AppRoutes />
       </BrowserRouter>
     </AuthProvider>
   );

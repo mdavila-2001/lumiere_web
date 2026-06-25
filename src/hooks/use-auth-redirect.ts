@@ -1,31 +1,45 @@
 import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import type { Location } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
-import { UserRole } from '@/interfaces/user.interface';
+import { resolveLandingRoute } from '@/routes/paths';
 
 /**
- * Resolves the landing route for an authenticated user based on its role.
- * Admins are sent to their dashboard; everyone else lands on the billboard.
+ * Reads the path the user was originally trying to reach, stashed by
+ * `ProtectedRoute` as `state.from` when it bounced an unauthenticated visitor
+ * to the login screen. Returns `null` when there is no such intended location.
  */
-export const resolveLandingRoute = (role: UserRole): string =>
-  role === UserRole.ADMIN ? '/admin' : '/';
+function readIntendedPath(state: unknown): string | null {
+  if (typeof state !== 'object' || state === null) {
+    return null;
+  }
+  const from = (state as { from?: unknown }).from;
+  if (typeof from !== 'object' || from === null) {
+    return null;
+  }
+  const { pathname, search, hash } = from as Partial<Location>;
+  return pathname ? `${pathname}${search ?? ''}${hash ?? ''}` : null;
+}
 
 /**
- * Reactively redirects an authenticated user to its role-based landing route.
+ * Reactively redirects an authenticated user away from auth screens.
  *
- * Intended for auth screens (login/register): once the global auth state holds
- * a user, this navigates Admins to `/admin` and Customers back to the billboard
- * `/`. The JWT is already persisted by the auth flow, so the session survives.
+ * Intended for login/register: once the global auth state holds a user, this
+ * sends them to the page they were originally trying to reach (saved by
+ * `ProtectedRoute`), falling back to their role-based landing route. The JWT is
+ * already persisted by the auth flow, so the session survives the navigation.
  */
 export const useAuthRedirect = (): void => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   React.useEffect(() => {
     if (!isAuthenticated || !user) {
       return;
     }
 
-    navigate(resolveLandingRoute(user.role), { replace: true });
-  }, [isAuthenticated, user, navigate]);
+    const intended = readIntendedPath(location.state);
+    navigate(intended ?? resolveLandingRoute(user.role), { replace: true });
+  }, [isAuthenticated, user, navigate, location.state]);
 };
