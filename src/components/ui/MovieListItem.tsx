@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { Movie } from '@/interfaces/movie.interface';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/components/ui/Badge';
 
 export interface MovieListItemProps {
   movie: Movie;
