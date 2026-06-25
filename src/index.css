@@ -1,17 +1,55 @@
 @import "tailwindcss";
 
 @theme {
+  --font-display: "Hanken Grotesk", sans-serif;
+
+  /* Brand accent palette — cyan (#00f1ff) overrides the default amber tokens
+     so every existing `amber-*` utility/token renders in the new accent color. */
+  --color-amber-400: #5cf6ff;
+  --color-amber-500: #00f1ff;
+  --color-amber-600: #00c2d1;
+
   --color-brand-primary: var(--color-amber-500);
   --color-brand-dark: var(--color-zinc-950);
   --color-brand-surface: var(--color-zinc-900);
-  
-  --color-surface-container: var(--color-zinc-900);
+
+  /* Material Design 3 — Surface palette */
+  --color-surface: #111319;
+  --color-surface-dim: #111319;
   --color-surface-bright: var(--color-zinc-800);
-  --color-primary-container: var(--color-amber-500);
-  --color-on-primary-container: var(--color-zinc-950);
-  --color-on-surface-variant: var(--color-zinc-400);
+  --color-surface-container-lowest: #0c0e14;
+  --color-surface-container-low: #191b22;
+  --color-surface-container: var(--color-zinc-900);
+  --color-surface-container-high: #282a30;
+  --color-surface-container-highest: #33343b;
   --color-surface-variant: var(--color-zinc-800);
+
+  /* Material Design 3 — Primary palette */
+  --color-primary: #fff6df;
+  --color-primary-container: var(--color-amber-500);
   --color-primary-fixed: var(--color-amber-600);
+  --color-on-primary-container: var(--color-zinc-950);
+
+  /* Material Design 3 — Content / On-* palette */
+  --color-on-surface: #e2e2eb;
+  --color-on-surface-variant: var(--color-zinc-400);
+
+  /* Material Design 3 — Outline palette */
+  --color-outline: #999077;
+  --color-outline-variant: #4d4732;
+
+  /* Material Design 3 — Error palette */
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+
+  /* Material Design 3 — Typography scale (spacing-aware) */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
 }
 
 :root {
@@ -21,13 +59,13 @@
   --border: var(--color-zinc-800);
   --code-bg: var(--color-zinc-900);
   --accent: var(--color-amber-500);
-  --accent-bg: rgba(245, 158, 11, 0.1);
-  --accent-border: rgba(245, 158, 11, 0.4);
+  --accent-bg: rgba(0, 241, 255, 0.1);
+  --accent-border: rgba(0, 241, 255, 0.4);
   --social-bg: rgba(39, 39, 42, 0.5);
   --shadow: rgba(0, 0, 0, 0.6) 0 10px 15px -3px, rgba(0, 0, 0, 0.3) 0 4px 6px -2px;
 
   --sans: Inter, system-ui, sans-serif;
-  --heading: Inter, system-ui, sans-serif;
+  --heading: "Hanken Grotesk", Inter, system-ui, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
@@ -143,6 +181,12 @@ code {
   @apply w-full px-3 py-2.5 text-sm bg-zinc-900 border rounded-md shadow-sm transition-colors duration-200 outline-none placeholder-zinc-500 disabled:opacity-50 disabled:bg-zinc-950/50;
 }
 
+/* Reserve room on the left for an in-field icon. Declared after (and, like)
+   `.input-base` so it reliably overrides its horizontal padding in Tailwind v4. */
+.input-icon-pad {
+  padding-left: 2.75rem;
+}
+
 .input-normal {
   @apply border-zinc-700 text-zinc-100 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/20;
 }
@@ -168,13 +212,33 @@ code {
 
 .floating-input:focus ~ .floating-label,
 .floating-input:not(:placeholder-shown) ~ .floating-label {
-  transform: translateY(-1.75rem) scale(0.85);
+  transform: translateY(-1.25rem) scale(0.85);
   color: var(--color-amber-500);
   background-color: #18181b;
   padding-left: 0.25rem;
   padding-right: 0.25rem;
 }
 
-.gold-glow:hover {
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+.gold-glow {
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
+
+.gold-glow:hover {
+  box-shadow: 0 0 20px rgba(0, 241, 255, 0.2) !important;
+}
+
+.gold-glow:focus,
+.gold-glow:focus-within {
+  border-color: var(--color-amber-500) !important;
+  box-shadow: 0 0 10px rgba(0, 241, 255, 0.35) !important;
+}
+
+.gold-glow:focus ~ .floating-label,
+.gold-glow:focus-within ~ .floating-label {
+  color: var(--color-amber-500) !important;
+}
+
+.glow-hover:hover {
+  box-shadow: 0 0 15px rgba(0, 241, 255, 0.15);
+}
+

@@ -7,10 +7,10 @@ export interface MovieCardProps {
 }
 
 export const MovieCard: React.FC<MovieCardProps> = ({ movie }) => {
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+  const imageBaseUrl = import.meta.env.VITE_IMAGE_URL || 'http://localhost:3000';
   const fullPosterUrl = movie.posterUrl.startsWith('http')
     ? movie.posterUrl
-    : `${apiBaseUrl}${movie.posterUrl}`;
+    : `${imageBaseUrl}${movie.posterUrl}`;
 
   return (
     <article className="movie-card group flex flex-col bg-zinc-900 rounded-[12px] border border-zinc-800/80 overflow-hidden relative transition-all duration-300 hover:border-amber-500/30 gold-glow">

@@ -10,6 +10,7 @@ import MovieDetails from '@/pages/MovieDetails';
 import SeatMap from '@/pages/SeatMap';
 import AdminDashboard from '@/pages/AdminDashboard';
 import MovieManagement from '@/pages/MovieManagement';
+import MovieForm from '@/pages/MovieForm';
 import RoomManagement from '@/pages/RoomManagement';
 import ShowtimeManagement from '@/pages/ShowtimeManagement';
 import TestComponents from '@/TestComponents';
@@ -33,6 +34,8 @@ export default function App(): React.JSX.Element {
             <Route element={<AdminLayout />}>
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/movies" element={<MovieManagement />} />
+              <Route path="/admin/movies/new" element={<MovieForm />} />
+              <Route path="/admin/movies/edit/:id" element={<MovieForm />} />
               <Route path="/admin/rooms" element={<RoomManagement />} />
               <Route path="/admin/showtimes" element={<ShowtimeManagement />} />
             </Route>

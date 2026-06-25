@@ -164,13 +164,13 @@ export default function AdminDashboard(): React.JSX.Element {
         ) : (
           <>
             {/* Tarjeta A: Venta Total Real de Todos los Tiempos */}
-            <div className="bg-[#1d1f26] rounded-xl p-6 border border-gray-800/50 relative overflow-hidden group hover:border-[#ffd700]/30 transition-colors duration-300">
-              <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#ffd700]/5 rounded-full blur-xl group-hover:bg-[#ffd700]/10 transition-colors duration-300"></div>
+            <div className="bg-[#1d1f26] rounded-xl p-6 border border-gray-800/50 relative overflow-hidden group hover:border-amber-500/30 transition-colors duration-300">
+              <div className="absolute -right-4 -top-4 w-24 h-24 bg-amber-500/5 rounded-full blur-xl group-hover:bg-amber-500/10 transition-colors duration-300"></div>
               <div className="flex justify-between items-start mb-4">
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider text-left">
                   Venta Total
                 </p>
-                <span className="material-symbols-outlined text-[#ffd700] text-[22px]">
+                <span className="material-symbols-outlined text-amber-500 text-[22px]">
                   payments
                 </span>
               </div>
@@ -184,12 +184,12 @@ export default function AdminDashboard(): React.JSX.Element {
             </div>
 
             {/* Tarjeta B: Película Más Vendida */}
-            <div className="bg-[#1d1f26] rounded-xl p-6 border border-gray-800/50 relative overflow-hidden group hover:border-[#ffd700]/30 transition-colors duration-300">
+            <div className="bg-[#1d1f26] rounded-xl p-6 border border-gray-800/50 relative overflow-hidden group hover:border-amber-500/30 transition-colors duration-300">
               <div className="flex justify-between items-start mb-4">
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider text-left">
                   Película Más Vendida
                 </p>
-                <span className="material-symbols-outlined text-gray-400 group-hover:text-[#ffd700] transition-colors text-[22px]">
+                <span className="material-symbols-outlined text-gray-400 group-hover:text-amber-500 transition-colors text-[22px]">
                   local_activity
                 </span>
               </div>
@@ -202,12 +202,12 @@ export default function AdminDashboard(): React.JSX.Element {
             </div>
 
             {/* Tarjeta C: Porcentaje de Asientos Ocupados para Hoy */}
-            <div className="bg-[#1d1f26] rounded-xl p-6 border border-gray-800/50 relative overflow-hidden group hover:border-[#ffd700]/30 transition-colors duration-300">
+            <div className="bg-[#1d1f26] rounded-xl p-6 border border-gray-800/50 relative overflow-hidden group hover:border-amber-500/30 transition-colors duration-300">
               <div className="flex justify-between items-start mb-4">
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider text-left">
                   Porcentaje de Ocupación
                 </p>
-                <span className="material-symbols-outlined text-gray-400 group-hover:text-[#ffd700] transition-colors text-[22px]">
+                <span className="material-symbols-outlined text-gray-400 group-hover:text-amber-500 transition-colors text-[22px]">
                   chair
                 </span>
               </div>
@@ -217,7 +217,7 @@ export default function AdminDashboard(): React.JSX.Element {
               {stats.showtimesCount > 0 ? (
                 <>
                   <div className="w-full bg-[#111319] h-1.5 rounded-full mt-3 overflow-hidden">
-                    <div className="bg-[#ffd700] h-full rounded-full w-[78%]"></div>
+                    <div className="bg-amber-500 h-full rounded-full w-[78%]"></div>
                   </div>
                   <p className="text-[10px] text-gray-400 mt-2 text-left">
                     En todas las salas hoy
@@ -241,51 +241,51 @@ export default function AdminDashboard(): React.JSX.Element {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
             to="/admin/movies"
-            className="flex items-center justify-between p-4 bg-[#111319] border border-gray-800 rounded-xl hover:border-[#ffd700] hover:text-[#ffd700] transition-all duration-300 group"
+            className="flex items-center justify-between p-4 bg-[#111319] border border-gray-800 rounded-xl hover:border-amber-500 hover:text-amber-500 transition-all duration-300 group"
           >
             <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-[#ffd700] text-[24px]">
+              <span className="material-symbols-outlined text-amber-500 text-[24px]">
                 movie
               </span>
-              <span className="font-semibold text-sm text-[#e2e2eb] group-hover:text-[#ffd700] transition-colors">
+              <span className="font-semibold text-sm text-[#e2e2eb] group-hover:text-amber-500 transition-colors">
                 Ingresar Película
               </span>
             </div>
-            <span className="material-symbols-outlined text-gray-500 group-hover:text-[#ffd700] group-hover:translate-x-1 transition-all">
+            <span className="material-symbols-outlined text-gray-500 group-hover:text-amber-500 group-hover:translate-x-1 transition-all">
               arrow_forward
             </span>
           </Link>
 
           <Link
             to="/admin/rooms"
-            className="flex items-center justify-between p-4 bg-[#111319] border border-gray-800 rounded-xl hover:border-[#ffd700] hover:text-[#ffd700] transition-all duration-300 group"
+            className="flex items-center justify-between p-4 bg-[#111319] border border-gray-800 rounded-xl hover:border-amber-500 hover:text-amber-500 transition-all duration-300 group"
           >
             <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-[#ffd700] text-[24px]">
+              <span className="material-symbols-outlined text-amber-500 text-[24px]">
                 theater_comedy
               </span>
-              <span className="font-semibold text-sm text-[#e2e2eb] group-hover:text-[#ffd700] transition-colors">
+              <span className="font-semibold text-sm text-[#e2e2eb] group-hover:text-amber-500 transition-colors">
                 Crear Sala
               </span>
             </div>
-            <span className="material-symbols-outlined text-gray-500 group-hover:text-[#ffd700] group-hover:translate-x-1 transition-all">
+            <span className="material-symbols-outlined text-gray-500 group-hover:text-amber-500 group-hover:translate-x-1 transition-all">
               arrow_forward
             </span>
           </Link>
 
           <Link
             to="/admin/showtimes"
-            className="flex items-center justify-between p-4 bg-[#111319] border border-gray-800 rounded-xl hover:border-[#ffd700] hover:text-[#ffd700] transition-all duration-300 group"
+            className="flex items-center justify-between p-4 bg-[#111319] border border-gray-800 rounded-xl hover:border-amber-500 hover:text-amber-500 transition-all duration-300 group"
           >
             <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-[#ffd700] text-[24px]">
+              <span className="material-symbols-outlined text-amber-500 text-[24px]">
                 schedule
               </span>
-              <span className="font-semibold text-sm text-[#e2e2eb] group-hover:text-[#ffd700] transition-colors">
+              <span className="font-semibold text-sm text-[#e2e2eb] group-hover:text-amber-500 transition-colors">
                 Programar Función
               </span>
             </div>
-            <span className="material-symbols-outlined text-gray-500 group-hover:text-[#ffd700] group-hover:translate-x-1 transition-all">
+            <span className="material-symbols-outlined text-gray-500 group-hover:text-amber-500 group-hover:translate-x-1 transition-all">
               arrow_forward
             </span>
           </Link>

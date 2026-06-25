@@ -1,15 +1,17 @@
 import * as React from 'react';
-import { Button } from './components/ui/button';
-import { Input } from './components/ui/input';
-import { Badge } from './components/ui/badge';
-import { DataTable, type ColumnDef } from './components/ui/data-table';
-import { Select } from './components/ui/select';
-import { FileInput } from './components/ui/file-input';
-import { Checkbox, Radio } from './components/ui/choice-input';
-import { Sidebar } from './components/layout/sidebar';
+import { Button } from './components/ui/Button';
+import { Input } from './components/ui/Input';
+import { Badge } from './components/ui/Badge';
+import { DataTable, type ColumnDef } from './components/ui/DataTable';
+import { Select } from './components/ui/Select';
+import { FileInput } from './components/ui/FileInput';
+import { Checkbox, Radio } from './components/ui/ChoiceInput';
+import { Sidebar } from './components/layout/Sidebar';
 import { MovieCard } from './components/MovieCard';
 import type { Movie } from './interfaces/movie.interface';
-import { Modal } from './components/ui/modal';
+import { Modal } from './components/ui/Modal';
+import { MovieListItem } from './components/ui/MovieListItem';
+import { formatMinutesAsHours } from './utils/duration';
 
 interface MovieItem {
     id: string;
@@ -54,7 +56,7 @@ export default function TestComponents() {
     const [posterPreview, setPosterPreview] = React.useState<string>('');
     const [termsAccepted, setTermsAccepted] = React.useState(false);
     const [paymentMethod, setPaymentMethod] = React.useState('card');
-    
+
     // Error state simulation
     const [formErrors, setFormErrors] = React.useState({
         text: '',
@@ -108,7 +110,11 @@ export default function TestComponents() {
         },
         {
             header: 'Duration',
-            render: (row) => <span className="font-mono text-zinc-400">{row.duration} min</span>,
+            render: (row) => (
+                <span className="font-mono text-zinc-400">
+                    {row.duration} min = {formatMinutesAsHours(row.duration)}
+                </span>
+            ),
         },
         {
             header: 'Year',
@@ -128,269 +134,316 @@ export default function TestComponents() {
             <Sidebar onNewScreeningClick={() => console.log('New Screening clicked')} />
             <main className="flex-grow pl-64 w-full">
                 <div className="max-w-4xl mx-auto py-12 px-6 space-y-12 text-left">
-                {/* Header */}
-                <header className="border-b border-zinc-800 pb-6 text-left">
-                    <Badge variant="amber" className="mb-2">Lumière System v1.1</Badge>
-                    <h1 className="text-4xl font-extrabold text-zinc-100 mt-1 mb-2 tracking-tight">
-                        Design Tokens & UI components
-                    </h1>
-                    <p className="text-zinc-400">
-                        Preview playground for the brand's visual identity, atomic components, and dark cinematic theme parameters.
-                    </p>
-                </header>
+                    {/* Header */}
+                    <header className="border-b border-zinc-800 pb-6 text-left">
+                        <Badge variant="amber" className="mb-2">Lumière System v1.1</Badge>
+                        <h1 className="text-4xl font-extrabold text-zinc-100 mt-1 mb-2 tracking-tight">
+                            Design Tokens & UI components
+                        </h1>
+                        <p className="text-zinc-400">
+                            Preview playground for the brand's visual identity, atomic components, and dark cinematic theme parameters.
+                        </p>
+                    </header>
 
-                {/* Section: Buttons */}
-                <section className="space-y-4 text-left">
-                    <h2 className="text-xl font-bold border-b border-zinc-800 pb-2">Buttons</h2>
-                    <div className="flex flex-wrap gap-4 items-center">
-                        <Button variant="primary">Primary Button</Button>
-                        <Button variant="secondary">Secondary Button</Button>
-                        <Button variant="danger">Danger Button</Button>
-                        <Button variant="outline">Outline Button</Button>
-                        
-                        {/* Icon Buttons */}
-                        <Button 
-                            variant="primary" 
-                            icon={
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                                </svg>
-                            }
-                        >
-                            Book Ticket (Left Icon)
-                        </Button>
-                        
-                        <Button 
-                            variant="outline" 
-                            iconPosition="right"
-                            icon={
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                </svg>
-                            }
-                        >
-                            Next Step (Right Icon)
-                        </Button>
-                        
-                        <Button variant="primary" isLoading={loading} onClick={handleSimulateLoad}>
-                            {loading ? 'Processing...' : 'Click to Load (2s)'}
-                        </Button>
-                        
-                        <Button 
-                            variant="outline" 
-                            isLoading={loading} 
-                            onClick={handleSimulateLoad}
-                            icon={
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                                </svg>
-                            }
-                        >
-                            Load with Icon
-                        </Button>
+                    {/* Section: Buttons */}
+                    <section className="space-y-4 text-left">
+                        <h2 className="text-xl font-bold border-b border-zinc-800 pb-2">Buttons</h2>
+                        <div className="flex flex-wrap gap-4 items-center">
+                            <Button variant="primary">Primary Button</Button>
+                            <Button variant="secondary">Secondary Button</Button>
+                            <Button variant="danger">Danger Button</Button>
+                            <Button variant="outline">Outline Button</Button>
 
-                        <Button variant="primary" disabled>
-                            Disabled Button
-                        </Button>
-                    </div>
-                </section>
+                            {/* Icon Buttons */}
+                            <Button
+                                variant="primary"
+                                icon={
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                                    </svg>
+                                }
+                            >
+                                Book Ticket (Left Icon)
+                            </Button>
 
-                {/* Section: Badges */}
-                <section className="space-y-4 text-left">
-                    <h2 className="text-xl font-bold border-b border-zinc-800 pb-2">Badges</h2>
-                    <div className="flex flex-wrap gap-3">
-                        <Badge variant="zinc">Info badge</Badge>
-                        <Badge variant="zinc">PG-13</Badge>
-                        <Badge variant="amber">Premiere</Badge>
-                        <Badge variant="amber">IMAX 3D</Badge>
-                    </div>
-                </section>
+                            <Button
+                                variant="outline"
+                                iconPosition="right"
+                                icon={
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                }
+                            >
+                                Next Step (Right Icon)
+                            </Button>
 
-                {/* Section: Inputs, Selects and Choice Controls */}
-                <section className="space-y-6 text-left">
-                    <h2 className="text-xl font-bold border-b border-zinc-800 pb-2">Form Controls</h2>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Text Input */}
-                        <Input
-                            label="Movie Title"
-                            placeholder="Enter movie title..."
-                            value={textVal}
-                            onChange={(e) => setTextVal(e.target.value)}
-                            error={formErrors.text}
-                        />
+                            <Button variant="primary" isLoading={loading} onClick={handleSimulateLoad}>
+                                {loading ? 'Processing...' : 'Click to Load (2s)'}
+                            </Button>
 
-                        {/* Number Input */}
-                        <Input
-                            type="number"
-                            label="Duration (minutes)"
-                            placeholder="120"
-                            value={numberVal}
-                            onChange={(e) => setNumberVal(Number(e.target.value))}
-                        />
+                            <Button
+                                variant="outline"
+                                isLoading={loading}
+                                onClick={handleSimulateLoad}
+                                icon={
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                                    </svg>
+                                }
+                            >
+                                Load with Icon
+                            </Button>
 
-                        {/* Date Input */}
-                        <Input
-                            type="date"
-                            label="Release Date"
-                            value={dateVal}
-                            onChange={(e) => setDateVal(e.target.value)}
-                        />
+                            <Button variant="primary" disabled>
+                                Disabled Button
+                            </Button>
+                        </div>
+                    </section>
 
-                        {/* Time Input */}
-                        <Input
-                            type="time"
-                            label="Showtime Time"
-                            value={timeVal}
-                            onChange={(e) => setTimeVal(e.target.value)}
-                            error={formErrors.time}
-                        />
+                    {/* Section: Badges */}
+                    <section className="space-y-4 text-left">
+                        <h2 className="text-xl font-bold border-b border-zinc-800 pb-2">Badges</h2>
+                        <div className="flex flex-wrap gap-3">
+                            <Badge variant="zinc">Info badge</Badge>
+                            <Badge variant="zinc">PG-13</Badge>
+                            <Badge variant="amber">Premiere</Badge>
+                            <Badge variant="amber">IMAX 3D</Badge>
+                        </div>
+                    </section>
 
-                        {/* Select Component */}
-                        <Select
-                            label="Room Type Selection"
-                            options={selectOptions}
-                            value={selectVal}
-                            onChange={(e) => setSelectVal(e.target.value)}
-                            error={formErrors.select}
-                        />
+                    {/* Section: Inputs, Selects and Choice Controls */}
+                    <section className="space-y-6 text-left">
+                        <h2 className="text-xl font-bold border-b border-zinc-800 pb-2">Form Controls</h2>
 
-                        {/* File Uploader (FileInput) */}
-                        <FileInput
-                            label="Movie Poster Uploader"
-                            previewUrl={posterPreview}
-                            onChange={handleFileChange}
-                            error={formErrors.file}
-                        />
-                    </div>
-
-                    {/* Checkbox and Radio Options */}
-                    <div className="border border-zinc-800 rounded-lg p-6 bg-zinc-900/30 space-y-6">
-                        <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider">Choice Control Testing</h3>
-                        
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Checkboxes */}
-                            <div className="space-y-3">
-                                <span className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider">Checkboxes</span>
-                                <Checkbox
-                                    label="I accept all terms of service & Lumière policies"
-                                    checked={termsAccepted}
-                                    onChange={(e) => {
-                                        setTermsAccepted(e.target.checked);
-                                        setFormErrors(prev => ({ ...prev, choice: '' }));
-                                    }}
-                                    error={formErrors.choice}
+                            {/* Text Input */}
+                            <Input
+                                label="Movie Title"
+                                placeholder="Enter movie title..."
+                                value={textVal}
+                                onChange={(e) => setTextVal(e.target.value)}
+                                error={formErrors.text}
+                            />
+
+                            {/* Number Input + live minutes -> hours converter */}
+                            <div>
+                                <Input
+                                    type="number"
+                                    label="Duration (minutes)"
+                                    placeholder="120"
+                                    value={numberVal}
+                                    onChange={(e) => setNumberVal(Number(e.target.value))}
                                 />
-                                <Checkbox
-                                    label="Receive weekly newsletter via email"
-                                    defaultChecked
-                                />
+                                {numberVal > 0 && (
+                                    <p className="mt-1.5 text-xs font-mono text-amber-500">
+                                        {numberVal} min = {formatMinutesAsHours(numberVal)}
+                                    </p>
+                                )}
                             </div>
 
-                            {/* Radio Buttons */}
-                            <div className="space-y-3">
-                                <span className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider">Payment Method</span>
-                                <div className="space-y-2">
-                                    <Radio
-                                        name="payment"
-                                        label="Credit / Debit Card"
-                                        checked={paymentMethod === 'card'}
-                                        onChange={() => setPaymentMethod('card')}
+                            {/* Date Input */}
+                            <Input
+                                type="date"
+                                label="Release Date"
+                                value={dateVal}
+                                onChange={(e) => setDateVal(e.target.value)}
+                            />
+
+                            {/* Time Input */}
+                            <Input
+                                type="time"
+                                label="Showtime Time"
+                                value={timeVal}
+                                onChange={(e) => setTimeVal(e.target.value)}
+                                error={formErrors.time}
+                            />
+
+                            {/* Select Component */}
+                            <Select
+                                label="Room Type Selection"
+                                options={selectOptions}
+                                value={selectVal}
+                                onChange={(e) => setSelectVal(e.target.value)}
+                                error={formErrors.select}
+                            />
+
+                            {/* File Uploader (FileInput) */}
+                            <FileInput
+                                label="Movie Poster Uploader"
+                                previewUrl={posterPreview}
+                                onChange={handleFileChange}
+                                error={formErrors.file}
+                            />
+                        </div>
+
+                        {/* Search Input Variant */}
+                        <div className="mt-4">
+                            <Input
+                                variant="search"
+                                label="Search Movies"
+                                placeholder="Search by title, genre, director..."
+                                onSearch={(val) => console.log('Search triggered:', val)}
+                            />
+                        </div>
+                        {/* Checkbox and Radio Options */}
+                        <div className="border border-zinc-800 rounded-lg p-6 bg-zinc-900/30 space-y-6">
+                            <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider">Choice Control Testing</h3>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Checkboxes */}
+                                <div className="space-y-3">
+                                    <span className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider">Checkboxes</span>
+                                    <Checkbox
+                                        label="I accept all terms of service & Lumière policies"
+                                        checked={termsAccepted}
+                                        onChange={(e) => {
+                                            setTermsAccepted(e.target.checked);
+                                            setFormErrors(prev => ({ ...prev, choice: '' }));
+                                        }}
+                                        error={formErrors.choice}
                                     />
-                                    <Radio
-                                        name="payment"
-                                        label="Paypal Account"
-                                        checked={paymentMethod === 'paypal'}
-                                        onChange={() => setPaymentMethod('paypal')}
+                                    <Checkbox
+                                        label="Receive weekly newsletter via email"
+                                        defaultChecked
                                     />
-                                    <Radio
-                                        name="payment"
-                                        label="Cash at Ticket Counter"
-                                        checked={paymentMethod === 'cash'}
-                                        onChange={() => setPaymentMethod('cash')}
-                                    />
+                                </div>
+
+                                {/* Radio Buttons */}
+                                <div className="space-y-3">
+                                    <span className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider">Payment Method</span>
+                                    <div className="space-y-2">
+                                        <Radio
+                                            name="payment"
+                                            label="Credit / Debit Card"
+                                            checked={paymentMethod === 'card'}
+                                            onChange={() => setPaymentMethod('card')}
+                                        />
+                                        <Radio
+                                            name="payment"
+                                            label="Paypal Account"
+                                            checked={paymentMethod === 'paypal'}
+                                            onChange={() => setPaymentMethod('paypal')}
+                                        />
+                                        <Radio
+                                            name="payment"
+                                            label="Cash at Ticket Counter"
+                                            checked={paymentMethod === 'cash'}
+                                            onChange={() => setPaymentMethod('cash')}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="flex gap-4">
-                        <Button variant="primary" onClick={triggerFormValidation}>
-                            Simulate Form Validation
-                        </Button>
-                        <Button 
-                            variant="secondary" 
-                            onClick={() => {
-                                setTextVal('');
-                                setDateVal('');
-                                setPosterPreview('');
-                                setTermsAccepted(false);
-                                setFormErrors({ text: '', time: '', select: '', file: '', choice: '' });
-                            }}
-                        >
-                            Reset Fields & Errors
-                        </Button>
-                    </div>
-                </section>
-
-                {/* Section: Modal */}
-                <section className="space-y-4 text-left">
-                    <h2 className="text-xl font-bold border-b border-zinc-800 pb-2">Modal</h2>
-                    <div>
-                        <Button variant="primary" onClick={() => setIsModalOpen(true)}>
-                            Open Preview Modal
-                        </Button>
-                    </div>
-
-                    <Modal
-                        isOpen={isModalOpen}
-                        onClose={() => setIsModalOpen(false)}
-                        title="Información de la Función"
-                        size="md"
-                        footer={
-                            <>
-                                <Button variant="outline" onClick={() => setIsModalOpen(false)}>
-                                    Cancelar
-                                </Button>
-                                <Button variant="primary" onClick={() => setIsModalOpen(false)}>
-                                    Confirmar
-                                </Button>
-                            </>
-                        }
-                    >
-                        <div className="space-y-4">
-                            <p className="text-zinc-300">
-                                Estás a punto de programar una nueva función para la sala IMAX 3D. Por favor confirma los detalles a continuación.
-                            </p>
-                            <div className="bg-[#111319] p-4 rounded-xl border border-gray-800 space-y-2 text-xs">
-                                <p><strong className="text-gray-400">Película:</strong> Gladiator II</p>
-                                <p><strong className="text-gray-400">Sala:</strong> Sala VIP 01</p>
-                                <p><strong className="text-gray-400">Hora:</strong> 20:30 PM</p>
-                                <p><strong className="text-gray-400">Precio:</strong> $12.50 USD</p>
-                            </div>
+                        <div className="flex gap-4">
+                            <Button variant="primary" onClick={triggerFormValidation}>
+                                Simulate Form Validation
+                            </Button>
+                            <Button
+                                variant="secondary"
+                                onClick={() => {
+                                    setTextVal('');
+                                    setDateVal('');
+                                    setPosterPreview('');
+                                    setTermsAccepted(false);
+                                    setFormErrors({ text: '', time: '', select: '', file: '', choice: '' });
+                                }}
+                            >
+                                Reset Fields & Errors
+                            </Button>
                         </div>
-                    </Modal>
-                </section>
+                    </section>
 
-                {/* Section: Movie Cards */}
-                <section className="space-y-4 text-left">
-                    <h2 className="text-xl font-bold border-b border-zinc-800 pb-2">Movie Cards</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                        {testMovies.map((movie) => (
-                            <MovieCard key={movie.id} movie={movie} />
-                        ))}
-                    </div>
-                </section>
+                    {/* Section: Modal */}
+                    <section className="space-y-4 text-left">
+                        <h2 className="text-xl font-bold border-b border-zinc-800 pb-2">Modal</h2>
+                        <div>
+                            <Button variant="primary" onClick={() => setIsModalOpen(true)}>
+                                Open Preview Modal
+                            </Button>
+                        </div>
 
-                {/* Section: Data Table */}
-                <section className="space-y-4 text-left">
-                    <h2 className="text-xl font-bold border-b border-zinc-800 pb-2">Data Table</h2>
-                    <DataTable
-                        columns={columns}
-                        data={sampleMovies}
-                        emptyMessage="No movie entries to show."
-                    />
-                </section>
+                        <Modal
+                            isOpen={isModalOpen}
+                            onClose={() => setIsModalOpen(false)}
+                            title="Información de la Función"
+                            size="md"
+                            footer={
+                                <>
+                                    <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+                                        Cancelar
+                                    </Button>
+                                    <Button variant="primary" onClick={() => setIsModalOpen(false)}>
+                                        Confirmar
+                                    </Button>
+                                </>
+                            }
+                        >
+                            <div className="space-y-4">
+                                <p className="text-zinc-300">
+                                    Estás a punto de programar una nueva función para la sala IMAX 3D. Por favor confirma los detalles a continuación.
+                                </p>
+                                <div className="bg-[#111319] p-4 rounded-xl border border-gray-800 space-y-2 text-xs">
+                                    <p><strong className="text-gray-400">Película:</strong> Gladiator II</p>
+                                    <p><strong className="text-gray-400">Sala:</strong> Sala VIP 01</p>
+                                    <p><strong className="text-gray-400">Hora:</strong> 20:30 PM</p>
+                                    <p><strong className="text-gray-400">Precio:</strong> $12.50 USD</p>
+                                </div>
+                            </div>
+                        </Modal>
+                    </section>
+
+                    {/* Section: Movie Cards */}
+                    <section className="space-y-4 text-left">
+                        <h2 className="text-xl font-bold border-b border-zinc-800 pb-2">Movie Cards</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                            {testMovies.map((movie) => (
+                                <MovieCard key={movie.id} movie={movie} />
+                            ))}
+                        </div>
+                    </section>
+
+                    {/* Section: Movie List Items */}
+                    <section className="space-y-4 text-left">
+                        <h2 className="text-xl font-bold border-b border-zinc-800 pb-2">Movie List Items</h2>
+                        <div className="flex flex-col gap-4">
+                            <MovieListItem
+                                movie={testMovies[0]}
+                                status="active"
+                                dailyShowsCount={12}
+                                roomsNames={['A', 'B', 'IMAX-1']}
+                                formats={['IMAX', '3D']}
+                                actions={
+                                    <>
+                                        <Button variant="outline" icon={<span className="material-symbols-outlined text-[18px]">edit</span>}>Edit</Button>
+                                        <Button variant="danger" icon={<span className="material-symbols-outlined text-[18px]">delete</span>}>Delete</Button>
+                                    </>
+                                }
+                            />
+                            <MovieListItem
+                                movie={testMovies[1]}
+                                status="archived"
+                                dailyShowsCount={0}
+                                actions={
+                                    <>
+                                        <Button variant="outline" icon={<span className="material-symbols-outlined text-[18px]">settings_backup_restore</span>}>Restore</Button>
+                                        <Button variant="danger" icon={<span className="material-symbols-outlined text-[18px]">delete_forever</span>}>Purge</Button>
+                                    </>
+                                }
+                            />
+                        </div>
+                    </section>
+
+                    {/* Section: Data Table */}
+                    <section className="space-y-4 text-left">
+                        <h2 className="text-xl font-bold border-b border-zinc-800 pb-2">Data Table</h2>
+                        <DataTable
+                            columns={columns}
+                            data={sampleMovies}
+                            emptyMessage="No movie entries to show."
+                        />
+                    </section>
                 </div>
             </main>
         </div>

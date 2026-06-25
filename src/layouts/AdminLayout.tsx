@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Outlet } from 'react-router-dom';
-import { Sidebar } from '@/components/layout/sidebar';
+import { Sidebar } from '@/components/layout/Sidebar';
 
 export default function AdminLayout(): React.JSX.Element {
   const handleNewScreening = (): void => {

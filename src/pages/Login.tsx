@@ -57,7 +57,7 @@ export default function Login(): React.JSX.Element {
           vec3 color = vec3(0.06, 0.07, 0.1);
           float n = noise(uv + u_time * 0.05);
           float smoke = smoothstep(0.3, 0.7, sin(uv.x * 3.0 + u_time) * cos(uv.y * 2.0 + u_time * 0.5) * 0.5 + 0.5);
-          vec3 gold = vec3(1.0, 0.84, 0.0);
+          vec3 gold = vec3(0.0, 0.945, 1.0);
           color = mix(color, gold * 0.15, smoke * (1.0 - uv.y));
           color += (noise(uv + u_time) - 0.5) * 0.02;
           gl_FragColor = vec4(color, 1.0);
