@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import { useAuthRedirect } from '@/hooks/use-auth-redirect';
 import { ApiError } from '@/services/api';
+import { ROUTES } from '@/routes/paths';
 
 export default function Login(): React.JSX.Element {
   const { login } = useAuth();
@@ -288,13 +289,27 @@ export default function Login(): React.JSX.Element {
           </form>
 
           {/* Footer Register Link */}
-          <div className="text-center mt-2">
+          <div className="text-center mt-2 flex flex-col gap-3">
             <p className="text-xs text-zinc-400">
               ¿No tienes una cuenta?{' '}
-              <Link to="/register" className="text-amber-500 hover:text-amber-400 transition-colors font-semibold">
+              <Link to={ROUTES.REGISTER} className="text-amber-500 hover:text-amber-400 transition-colors font-semibold">
                 Regístrate
               </Link>
             </p>
+            <div className="flex items-center justify-center gap-2">
+              <div className="h-[1px] w-8 bg-zinc-800"></div>
+              <span className="text-[10px] text-zinc-600 uppercase tracking-widest">o</span>
+              <div className="h-[1px] w-8 bg-zinc-800"></div>
+            </div>
+            <div>
+              <Link 
+                to={ROUTES.HOME} 
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 border border-zinc-800 rounded-lg text-xs text-zinc-300 hover:text-amber-500 hover:border-amber-500/30 bg-zinc-950/20 hover:bg-zinc-950/40 transition-all font-semibold active:scale-95 cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[16px]">person</span>
+                Entrar como invitado
+              </Link>
+            </div>
           </div>
         </div>
       </div>

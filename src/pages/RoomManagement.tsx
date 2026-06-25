@@ -18,7 +18,7 @@ interface UseRoomsResult {
   fetchRooms: () => Promise<void>;
 }
 
-function useRooms(): UseRoomsResult {
+function useRooms(search: string): UseRoomsResult {
   const [rooms, setRooms] = React.useState<Room[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
@@ -27,7 +27,10 @@ function useRooms(): UseRoomsResult {
     setIsLoading(true);
     setErrorMsg(null);
     try {
-      const res = await api.get<Room[]>('/rooms');
+      const trimmed = search.trim();
+      const res = await api.get<Room[]>('/rooms', {
+        params: trimmed ? { search: trimmed } : undefined,
+      });
       if (res.status === 200) {
         setRooms(res.data);
       } else {
@@ -45,7 +48,7 @@ function useRooms(): UseRoomsResult {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [search]);
 
   const deleteRoom = React.useCallback(async (id: string): Promise<void> => {
     try {
@@ -91,10 +94,17 @@ function useRooms(): UseRoomsResult {
 
 export default function RoomManagement(): React.JSX.Element {
   const navigate = useNavigate();
-  const { rooms, isLoading, errorMsg, deleteRoom } = useRooms();
 
-  // Search & Filtering
+  // Search term, debounced before it reaches the backend search endpoint.
   const [searchQuery, setSearchQuery] = React.useState<string>('');
+  const [debouncedQuery, setDebouncedQuery] = React.useState<string>('');
+
+  React.useEffect(() => {
+    const handle = setTimeout(() => setDebouncedQuery(searchQuery), 350);
+    return () => clearTimeout(handle);
+  }, [searchQuery]);
+
+  const { rooms, isLoading, errorMsg, deleteRoom } = useRooms(debouncedQuery);
 
   // Decommission workflow state
   const [roomTargetToDelete, setRoomTargetToDelete] = React.useState<Room | null>(null);
@@ -128,18 +138,12 @@ export default function RoomManagement(): React.JSX.Element {
     }
   };
 
-  const filteredRooms = React.useMemo(() => {
-    return rooms.filter((room) =>
-      room.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
-    );
-  }, [rooms, searchQuery]);
-
   // High-fidelity table row skeletons during transit
   const dummySkeletonData = React.useMemo(() => {
     return [{ id: 's1' }, { id: 's2' }, { id: 's3' }] as Room[];
   }, []);
 
-  const tableData = isLoading ? dummySkeletonData : filteredRooms;
+  const tableData = isLoading ? dummySkeletonData : rooms;
 
   // Table Column Definitions
   const columns = React.useMemo<ColumnDef<Room>[]>(() => {
@@ -184,25 +188,6 @@ export default function RoomManagement(): React.JSX.Element {
                 <span className="material-symbols-outlined text-[15px] leading-none">chair</span>
                 <span>{totalSeats} Asientos</span>
               </Badge>
-            </div>
-          );
-        },
-      },
-      {
-        header: 'ESPECIFICACIONES DE DISTRIBUCIÓN',
-        render: (room) => {
-          if (isLoading) {
-            return (
-              <div className="flex flex-col text-left space-y-2 py-1 animate-pulse">
-                <div className="h-4 bg-zinc-800 rounded w-16" />
-                <div className="h-3 bg-zinc-800/60 rounded w-24" />
-              </div>
-            );
-          }
-          return (
-            <div className="flex flex-col text-left py-1 font-mono text-xs">
-              <span className="text-zinc-300 font-semibold">{room.rowsCount} Filas</span>
-              <span className="text-zinc-500 mt-0.5">{room.columnsCount} Asientos/Fila Máx</span>
             </div>
           );
         },
@@ -272,13 +257,11 @@ export default function RoomManagement(): React.JSX.Element {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="gold-glow"
               leftIcon={<span className="material-symbols-outlined text-[20px] text-zinc-500">search</span>}
-              disabled={isLoading}
             />
           </div>
 
           <Button
             onClick={handleConfigureClick}
-            disabled={isLoading}
             className="!bg-amber-500 hover:!bg-amber-600 !text-zinc-950 font-bold px-4"
           >
             Agregar Sala

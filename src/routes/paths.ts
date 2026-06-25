@@ -11,7 +11,6 @@ export const ROUTES = {
   LOGIN: '/login',
   REGISTER: '/register',
   MOVIE_DETAILS: '/movie/:id',
-  PLAYGROUND: '/test',
 
   // Authenticated (customer or admin)
   BOOKING: '/booking/:showtimeId',

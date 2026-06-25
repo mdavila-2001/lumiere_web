@@ -9,7 +9,15 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 
-// ── Pure formatting helpers (null-safe under strictNullChecks) ──────────────
+const imageBaseUrl = import.meta.env.VITE_IMAGE_URL || 'http://localhost:3000';
+
+// Resolve a possibly-relative poster path (e.g. "/uploads/...") against the
+// asset host so the <img> loads from the backend, not the Vite dev origin.
+function resolvePosterUrl(posterUrl: string | undefined): string | undefined {
+  if (!posterUrl) return undefined;
+  return posterUrl.startsWith('http') ? posterUrl : `${imageBaseUrl}${posterUrl}`;
+}
+
 function formatFullDateTime(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return 'Fecha no disponible';
@@ -36,12 +44,15 @@ function formatTimeOnly(iso: string): string {
   }).format(date);
 }
 
-function formatPrice(price: number): string {
-  if (!Number.isFinite(price)) return '—';
+// Postgres `numeric` columns are serialised as strings by TypeORM, so coerce
+// before formatting to avoid a broken Number.isFinite() check on "45.00".
+function formatPrice(price: number | string): string {
+  const numeric = typeof price === 'string' ? Number.parseFloat(price) : price;
+  if (!Number.isFinite(numeric)) return '—';
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
-  }).format(price);
+  }).format(numeric);
 }
 
 // ── Poster thumbnail with graceful fallback when the asset is missing ───────
@@ -75,7 +86,7 @@ interface UseShowtimesResult {
   fetchShowtimes: () => Promise<void>;
 }
 
-function useShowtimes(): UseShowtimesResult {
+function useShowtimes(search: string): UseShowtimesResult {
   const [showtimes, setShowtimes] = React.useState<Showtime[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
@@ -84,7 +95,10 @@ function useShowtimes(): UseShowtimesResult {
     setIsLoading(true);
     setErrorMsg(null);
     try {
-      const res = await api.get<Showtime[]>('/showtimes');
+      const trimmed = search.trim();
+      const res = await api.get<Showtime[]>('/showtimes', {
+        params: trimmed ? { search: trimmed } : undefined,
+      });
       if (res.status === 200) {
         setShowtimes(res.data);
       } else {
@@ -102,7 +116,7 @@ function useShowtimes(): UseShowtimesResult {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [search]);
 
   const cancelShowtime = React.useCallback(async (id: string): Promise<void> => {
     try {
@@ -148,10 +162,17 @@ function useShowtimes(): UseShowtimesResult {
 
 export default function ShowtimeManagement(): React.JSX.Element {
   const navigate = useNavigate();
-  const { showtimes, isLoading, errorMsg, cancelShowtime } = useShowtimes();
 
-  // Search & Filtering
+  // Search term, debounced before it reaches the backend search endpoint.
   const [searchQuery, setSearchQuery] = React.useState<string>('');
+  const [debouncedQuery, setDebouncedQuery] = React.useState<string>('');
+
+  React.useEffect(() => {
+    const handle = setTimeout(() => setDebouncedQuery(searchQuery), 350);
+    return () => clearTimeout(handle);
+  }, [searchQuery]);
+
+  const { showtimes, isLoading, errorMsg, cancelShowtime } = useShowtimes(debouncedQuery);
 
   // Cancellation workflow state
   const [showtimeTargetToDelete, setShowtimeTargetToDelete] = React.useState<Showtime | null>(null);
@@ -185,21 +206,12 @@ export default function ShowtimeManagement(): React.JSX.Element {
     }
   };
 
-  const filteredShowtimes = React.useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-    if (!query) return showtimes;
-    return showtimes.filter((showtime) => {
-      const title = showtime.movie?.title.toLowerCase() ?? '';
-      return title.includes(query);
-    });
-  }, [showtimes, searchQuery]);
-
   // High-fidelity table row skeletons during transit
   const dummySkeletonData = React.useMemo(() => {
     return [{ id: 's1' }, { id: 's2' }, { id: 's3' }] as Showtime[];
   }, []);
 
-  const tableData = isLoading ? dummySkeletonData : filteredShowtimes;
+  const tableData = isLoading ? dummySkeletonData : showtimes;
 
   // Table Column Definitions
   const columns = React.useMemo<ColumnDef<Showtime>[]>(() => {
@@ -224,7 +236,7 @@ export default function ShowtimeManagement(): React.JSX.Element {
             movie !== undefined ? `${movie.genre} • ${movie.duration} min` : 'Sin metadatos';
           return (
             <div className="flex items-center gap-3 py-1 text-left font-sans">
-              <PosterThumb src={movie?.posterUrl} alt={title} />
+              <PosterThumb src={resolvePosterUrl(movie?.posterUrl)} alt={title} />
               <div className="flex flex-col">
                 <span className="font-bold text-zinc-100 text-sm tracking-wide sm:text-base">
                   {title}
@@ -255,7 +267,9 @@ export default function ShowtimeManagement(): React.JSX.Element {
                 {room?.name ?? '—'}
               </span>
               {room !== undefined && (
-                <span className="text-xs text-zinc-500 mt-0.5">{room.capacity} asientos</span>
+                <span className="text-xs text-zinc-500 mt-0.5">
+                  {room.seats?.length ?? room.capacity} asientos
+                </span>
               )}
             </div>
           );
@@ -364,7 +378,6 @@ export default function ShowtimeManagement(): React.JSX.Element {
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-          {/* Local Search Input */}
           <div className="w-full sm:w-72 bg-zinc-900/50 rounded-lg">
             <Input
               placeholder="Buscar funciones por película..."
@@ -372,13 +385,11 @@ export default function ShowtimeManagement(): React.JSX.Element {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="gold-glow"
               leftIcon={<span className="material-symbols-outlined text-[20px] text-zinc-500">search</span>}
-              disabled={isLoading}
             />
           </div>
 
           <Button
             onClick={handleScheduleClick}
-            disabled={isLoading}
             icon={<span className="material-symbols-outlined text-[18px]">add</span>}
             className="!bg-amber-500 hover:!bg-amber-600 !text-zinc-950 font-bold px-4"
           >

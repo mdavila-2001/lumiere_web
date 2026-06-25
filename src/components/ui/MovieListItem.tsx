@@ -1,13 +1,12 @@
 import * as React from 'react';
 import type { Movie } from '@/interfaces/movie.interface';
-import { Badge } from '@/components/ui/Badge';
 
 export interface MovieListItemProps {
   movie: Movie;
   status: 'active' | 'archived';
-  dailyShowsCount?: number;
+  premiereDate: string | null;
+  totalShowsCount?: number;
   roomsNames?: string[];
-  formats?: string[];
   actions: React.ReactNode;
 }
 
@@ -24,8 +23,8 @@ const statusBadgeStyles = {
 } as const;
 
 const statusLabels = {
-  active: 'Activo',
-  archived: 'Archivado',
+  active: 'En Cartelera',
+  archived: 'Muy Pronto',
 } as const;
 
 const containerStatusStyles = {
@@ -50,9 +49,9 @@ function formatReleaseDate(isoDate: string): string {
 export const MovieListItem: React.FC<MovieListItemProps> = ({
   movie,
   status,
-  dailyShowsCount,
+  premiereDate,
+  totalShowsCount,
   roomsNames,
-  formats,
   actions,
 }) => {
   const fullPosterUrl = movie.posterUrl.startsWith('http')
@@ -74,20 +73,6 @@ export const MovieListItem: React.FC<MovieListItemProps> = ({
           className="w-full h-full object-cover"
           loading="lazy"
         />
-
-        {formats && formats.length > 0 && (
-          <div className="absolute top-2 left-2 flex flex-col gap-1">
-            {formats.map((fmt) => (
-              <Badge
-                key={fmt}
-                variant="zinc"
-                className="!rounded !text-[10px] !px-2 !py-0.5 bg-black/75 backdrop-blur-sm border-outline-variant/50"
-              >
-                {fmt}
-              </Badge>
-            ))}
-          </div>
-        )}
       </div>
 
       <div className="flex-1 p-4 flex flex-col justify-between text-left">
@@ -119,19 +104,17 @@ export const MovieListItem: React.FC<MovieListItemProps> = ({
                 Estreno
               </span>
               <span className="text-sm text-on-surface font-sans">
-                {dailyShowsCount && dailyShowsCount > 0
-                  ? formatReleaseDate(movie.createdAt)
-                  : 'Muy pronto'}
+                {premiereDate ? formatReleaseDate(premiereDate) : 'Muy pronto'}
               </span>
             </div>
 
-            {dailyShowsCount !== undefined && (
+            {totalShowsCount !== undefined && totalShowsCount > 0 && (
               <div className="flex flex-col">
                 <span className="text-on-surface-variant/60 uppercase tracking-wider text-[10px] font-medium font-sans">
-                  Funciones Diarias
+                  Funciones
                 </span>
                 <span className="text-sm text-on-surface font-sans">
-                  {dailyShowsCount}
+                  {totalShowsCount}
                 </span>
               </div>
             )}
@@ -154,3 +137,4 @@ export const MovieListItem: React.FC<MovieListItemProps> = ({
     </article>
   );
 };
+

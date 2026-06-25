@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import api, { ApiError } from '@/services/api';
 import type { Movie } from '@/interfaces/movie.interface';
+import type { Showtime } from '@/interfaces/showtime.interface';
 import { MovieListItem } from '@/components/ui/MovieListItem';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
@@ -44,10 +45,18 @@ export default function MovieManagement(): React.JSX.Element {
   const navigate = useNavigate();
 
   const [movies, setMovies] = React.useState<Movie[]>([]);
+  const [showtimes, setShowtimes] = React.useState<Showtime[]>([]);
   const [isPageLoading, setIsPageLoading] = React.useState<boolean>(true);
   const [searchQuery, setSearchQuery] = React.useState<string>('');
+  const [debouncedQuery, setDebouncedQuery] = React.useState<string>('');
   const [activeGenreFilter, setActiveGenreFilter] = React.useState<string>('All Genres');
   const [activeRatingFilter, setActiveRatingFilter] = React.useState<string>('All Ratings');
+
+  // Debounce the search box before it reaches the backend search endpoint.
+  React.useEffect(() => {
+    const handle = setTimeout(() => setDebouncedQuery(searchQuery), 350);
+    return () => clearTimeout(handle);
+  }, [searchQuery]);
 
   // Deletion workflow state
   const [movieTargetToDelete, setMovieTargetToDelete] = React.useState<Movie | null>(null);
@@ -57,22 +66,32 @@ export default function MovieManagement(): React.JSX.Element {
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
   const [deleteErrorMsg, setDeleteErrorMsg] = React.useState<string | null>(null);
 
-  // Fetch Pipeline
+  // Fetch Pipeline — movies + showtimes in parallel
   React.useEffect(() => {
     let isMounted = true;
 
-    const fetchMovies = async (): Promise<void> => {
+    const fetchData = async (): Promise<void> => {
       try {
         setIsPageLoading(true);
         setErrorMsg(null);
-        const res = await api.get<Movie[]>('/movies');
+        const trimmed = debouncedQuery.trim();
 
-        if (res.status !== 200) {
+        const [moviesRes, showtimesRes] = await Promise.all([
+          api.get<Movie[]>('/movies/search', {
+            params: trimmed ? { title: trimmed } : undefined,
+          }),
+          api.get<Showtime[]>('/showtimes'),
+        ]);
+
+        if (moviesRes.status !== 200) {
           throw new Error('No se pudo obtener el listado de películas.');
         }
 
         if (isMounted) {
-          setMovies(res.data);
+          setMovies(moviesRes.data);
+          if (showtimesRes.status === 200) {
+            setShowtimes(showtimesRes.data);
+          }
         }
       } catch (err: unknown) {
         console.error('Failed to load movies:', err);
@@ -92,20 +111,47 @@ export default function MovieManagement(): React.JSX.Element {
       }
     };
 
-    fetchMovies();
+    fetchData();
 
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [debouncedQuery]);
 
-  // Derived filtered movies (computed inline to prevent UI desynchronization)
+  // Compute per-movie showtime stats from the full showtimes list
+  const movieShowtimeMap = React.useMemo(() => {
+    const map = new Map<string, { premiereDate: string | null; totalShows: number; roomNames: string[] }>();
+
+    showtimes.forEach((st) => {
+      const entry = map.get(st.movieId);
+      const roomName = st.room?.name ?? null;
+
+      if (!entry) {
+        map.set(st.movieId, {
+          premiereDate: st.startTime,
+          totalShows: 1,
+          roomNames: roomName ? [roomName] : [],
+        });
+      } else {
+        entry.totalShows += 1;
+        // Keep the earliest showtime as the premiere date
+        if (new Date(st.startTime).getTime() < new Date(entry.premiereDate ?? st.startTime).getTime()) {
+          entry.premiereDate = st.startTime;
+        }
+        // Collect unique room names
+        if (roomName && !entry.roomNames.includes(roomName)) {
+          entry.roomNames.push(roomName);
+        }
+      }
+    });
+
+    return map;
+  }, [showtimes]);
+
+  // Title search is handled by the backend; genre/rating remain client-side
+  // refinements (they carry bilingual matching logic) over the fetched results.
   const filteredMovies = React.useMemo(() => {
     return movies.filter((movie) => {
-      const titleLower = movie.title.toLowerCase();
-      const queryLower = searchQuery.trim().toLowerCase();
-      const matchesSearch = titleLower.includes(queryLower);
-
       let matchesGenre = true;
       if (activeGenreFilter && activeGenreFilter !== 'All Genres') {
         const genreLower = activeGenreFilter.toLowerCase();
@@ -129,9 +175,9 @@ export default function MovieManagement(): React.JSX.Element {
         matchesRating = movie.rating === activeRatingFilter;
       }
 
-      return matchesSearch && matchesGenre && matchesRating;
+      return matchesGenre && matchesRating;
     });
-  }, [movies, searchQuery, activeGenreFilter, activeRatingFilter]);
+  }, [movies, activeGenreFilter, activeRatingFilter]);
 
   // Action handlers
   const handleEdit = (id: string): void => {
@@ -266,19 +312,17 @@ export default function MovieManagement(): React.JSX.Element {
         ) : filteredMovies.length > 0 ? (
           <div className="space-y-4">
             {filteredMovies.map((movie) => {
-              const isActive = movie.title.toLowerCase() !== 'midnight protocol';
-              const formats = movie.title.toLowerCase().includes('starlight') || movie.genre.toLowerCase().includes('sci-fi') ? ['IMAX', '3D'] : [];
-              const dailyShowsCount = movie.title === 'Starlight Horizon' ? 12 : 0;
-              const roomsNames = movie.title === 'Starlight Horizon' ? ['A', 'B', 'IMAX-1'] : [];
+              const stInfo = movieShowtimeMap.get(movie.id);
+              const hasShowtimes = stInfo !== undefined && stInfo.totalShows > 0;
 
               return (
                 <MovieListItem
                   key={movie.id}
                   movie={movie}
-                  status={isActive ? 'active' : 'archived'}
-                  dailyShowsCount={dailyShowsCount}
-                  roomsNames={roomsNames}
-                  formats={formats}
+                  status={hasShowtimes ? 'active' : 'archived'}
+                  premiereDate={stInfo?.premiereDate ?? null}
+                  totalShowsCount={stInfo?.totalShows ?? 0}
+                  roomsNames={stInfo?.roomNames ?? []}
                   actions={
                     <div className="flex items-center gap-2">
                       <Button

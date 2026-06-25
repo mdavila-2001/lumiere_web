@@ -12,6 +12,8 @@ interface DashboardStats {
   showtimesCount: number;
   totalRevenue: number;
   bestMovie: string;
+  occupancyPercentage: number;
+  isOccupancyToday: boolean;
 }
 
 export default function AdminDashboard(): React.JSX.Element {
@@ -21,6 +23,8 @@ export default function AdminDashboard(): React.JSX.Element {
     showtimesCount: 0,
     totalRevenue: 0,
     bestMovie: '0',
+    occupancyPercentage: 0,
+    isOccupancyToday: false,
   });
   const [isStatsLoading, setIsStatsLoading] = React.useState<boolean>(true);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
@@ -96,6 +100,43 @@ export default function AdminDashboard(): React.JSX.Element {
 
         const bestMovieDisplay = maxSales > 0 ? maxMovie : '0';
 
+        // --- Calcular Ocupación Real Basada en Asientos Activos ---
+        const roomMap = new Map<string, Room>();
+        roomsList.forEach(r => roomMap.set(r.id, r));
+
+        const now = new Date();
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const todayEnd = todayStart + 24 * 60 * 60 * 1000;
+
+        // Filtrar funciones de hoy
+        const todayShowtimes = showtimesList.filter((s) => {
+          const t = new Date(s.startTime).getTime();
+          return t >= todayStart && t < todayEnd;
+        });
+
+        const showtimesToCalculate = todayShowtimes.length > 0 ? todayShowtimes : showtimesList;
+        const isOccupancyToday = todayShowtimes.length > 0;
+
+        let totalCapacity = 0;
+        let totalReserved = 0;
+
+        showtimesToCalculate.forEach((showtime) => {
+          const room = roomMap.get(showtime.roomId);
+          if (room) {
+            // Capacidad real es la cantidad de asientos configurados (activos), no la matriz completa
+            const roomCapacity = room.seats && room.seats.length > 0 ? room.seats.length : room.capacity;
+            totalCapacity += roomCapacity;
+
+            // Sumar reservas de esta función
+            const showtimeBookings = bookingsList.filter(b => b.showtimeId === showtime.id);
+            showtimeBookings.forEach((booking) => {
+              totalReserved += booking.reservedSeats?.length || 0;
+            });
+          }
+        });
+
+        const occupancyPercentage = totalCapacity > 0 ? Math.round((totalReserved / totalCapacity) * 100) : 0;
+
         if (isMounted) {
           setStats({
             moviesCount: moviesList.length,
@@ -103,6 +144,8 @@ export default function AdminDashboard(): React.JSX.Element {
             showtimesCount: showtimesList.length,
             totalRevenue,
             bestMovie: bestMovieDisplay,
+            occupancyPercentage,
+            isOccupancyToday,
           });
         }
       } catch (error: unknown) {
@@ -201,7 +244,7 @@ export default function AdminDashboard(): React.JSX.Element {
               </p>
             </div>
 
-            {/* Tarjeta C: Porcentaje de Asientos Ocupados para Hoy */}
+            {/* Tarjeta C: Porcentaje de Asientos Ocupados Real */}
             <div className="bg-[#1d1f26] rounded-xl p-6 border border-gray-800/50 relative overflow-hidden group hover:border-amber-500/30 transition-colors duration-300">
               <div className="flex justify-between items-start mb-4">
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider text-left">
@@ -212,20 +255,23 @@ export default function AdminDashboard(): React.JSX.Element {
                 </span>
               </div>
               <h3 className="text-3xl font-extrabold text-[#e2e2eb] text-left">
-                {stats.showtimesCount > 0 ? '78%' : '0%'}
+                {stats.occupancyPercentage}%
               </h3>
               {stats.showtimesCount > 0 ? (
                 <>
                   <div className="w-full bg-[#111319] h-1.5 rounded-full mt-3 overflow-hidden">
-                    <div className="bg-amber-500 h-full rounded-full w-[78%]"></div>
+                    <div 
+                      className="bg-amber-500 h-full rounded-full transition-all duration-500"
+                      style={{ width: `${stats.occupancyPercentage}%` }}
+                    ></div>
                   </div>
                   <p className="text-[10px] text-gray-400 mt-2 text-left">
-                    En todas las salas hoy
+                    {stats.isOccupancyToday ? 'En todas las salas hoy' : 'En todas las funciones programadas'}
                   </p>
                 </>
               ) : (
                 <p className="text-[10px] text-gray-400 mt-3 text-left">
-                  No hay funciones programadas hoy
+                  No hay funciones programadas
                 </p>
               )}
             </div>

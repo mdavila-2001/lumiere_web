@@ -149,6 +149,14 @@ export default function ShowtimeForm(): React.JSX.Element {
     [rooms, formState.roomId]
   );
 
+  // Real bookable capacity = active seats persisted in the DB. The room's
+  // `capacity` column is DB-generated as rows×columns (full grid), so it does
+  // NOT reflect disabled seats; prefer the seats relation when present.
+  const realSeatCount = React.useMemo<number | null>(() => {
+    if (!selectedRoom) return null;
+    return selectedRoom.seats?.length ?? selectedRoom.capacity;
+  }, [selectedRoom]);
+
   const estimatedEnd = React.useMemo<Date | null>(() => {
     if (!selectedMovie || !formState.startTime) return null;
     const start = new Date(formState.startTime);
@@ -461,20 +469,13 @@ export default function ShowtimeForm(): React.JSX.Element {
               <h4 className="text-[11px] uppercase tracking-wider font-bold text-zinc-500 mb-3">
                 Especificaciones de la Sala
               </h4>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-zinc-950/40 border border-zinc-800 rounded-xl p-3 flex flex-col items-center justify-center text-center">
-                  <span className="material-symbols-outlined text-[20px] text-zinc-400">chair</span>
-                  <span className="text-lg font-bold text-zinc-100 mt-1 font-mono">
-                    {selectedRoom ? selectedRoom.capacity : '--'}
+              <div className="bg-zinc-950/40 border border-zinc-800 rounded-xl p-4 flex items-center gap-3">
+                <span className="material-symbols-outlined text-[24px] text-amber-500">chair</span>
+                <div className="flex flex-col">
+                  <span className="text-lg font-bold text-zinc-100 font-mono leading-none">
+                    {realSeatCount !== null ? `${realSeatCount} asientos` : '--'}
                   </span>
-                  <span className="text-[11px] text-zinc-500">Capacidad</span>
-                </div>
-                <div className="bg-zinc-950/40 border border-zinc-800 rounded-xl p-3 flex flex-col items-center justify-center text-center">
-                  <span className="material-symbols-outlined text-[20px] text-zinc-400">grid_on</span>
-                  <span className="text-lg font-bold text-zinc-100 mt-1 font-mono">
-                    {selectedRoom ? `${selectedRoom.rowsCount}×${selectedRoom.columnsCount}` : '--'}
-                  </span>
-                  <span className="text-[11px] text-zinc-500">Distribución</span>
+                  <span className="text-[11px] text-zinc-500 mt-1">Capacidad real disponible</span>
                 </div>
               </div>
             </div>

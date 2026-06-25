@@ -16,31 +16,20 @@ import RoomManagement from '@/pages/RoomManagement';
 import RoomForm from '@/pages/RoomForm';
 import ShowtimeManagement from '@/pages/ShowtimeManagement';
 import ShowtimeForm from '@/pages/ShowtimeForm';
-import TestComponents from '@/TestComponents';
 import AdminLayout from '@/layouts/AdminLayout';
 
-/**
- * Declarative route table for the whole application.
- *
- * Public routes are open; the `ProtectedRoute` guard wraps the route groups
- * that require an authenticated session, enforcing the allowed roles per group.
- */
 export const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      {/* Public */}
       <Route path={ROUTES.HOME} element={<Home />} />
       <Route path={ROUTES.MOVIE_DETAILS} element={<MovieDetails />} />
       <Route path={ROUTES.LOGIN} element={<Login />} />
       <Route path={ROUTES.REGISTER} element={<Register />} />
-      <Route path={ROUTES.PLAYGROUND} element={<TestComponents />} />
 
-      {/* Authenticated: customers and admins */}
       <Route element={<ProtectedRoute allowedRoles={[UserRole.CUSTOMER, UserRole.ADMIN]} />}>
         <Route path={ROUTES.BOOKING} element={<SeatMap />} />
       </Route>
 
-      {/* Admin panel: admins only */}
       <Route element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]} />}>
         <Route element={<AdminLayout />}>
           <Route path={ROUTES.ADMIN} element={<AdminDashboard />} />
