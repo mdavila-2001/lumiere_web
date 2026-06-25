@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 
 const getRowLabel = (rowNum: number): string => {
-  return String.fromCharCode(64 + rowNum);
+  return String.fromCodePoint(64 + rowNum);
 };
 
 type SeatStatus = 'seat' | 'empty';
@@ -83,31 +83,34 @@ export default function RoomForm(): React.JSX.Element {
   }, []);
 
   React.useEffect(() => {
-    if (isEditMode && id) {
-      loadRoomDetails(id);
-    }
+    Promise.resolve().then(() => {
+      if (isEditMode && id) {
+        loadRoomDetails(id);
+      }
+    });
   }, [isEditMode, id, loadRoomDetails]);
 
-  
   React.useEffect(() => {
     if (isLoadingDetails) return;
 
-    setLayout((prev) => {
-      const next: Record<string, SeatStatus> = {};
-      for (let r = 1; r <= rowsCount; r++) {
-        for (let c = 1; c <= columnsCount; c++) {
-          const key = `${r}-${c}`;
-          if (prev[key]) {
-            next[key] = prev[key];
-          } else {
-            
-            next[key] = 'seat';
+    Promise.resolve().then(() => {
+      setLayout((prev) => {
+        const next: Record<string, SeatStatus> = {};
+        for (let r = 1; r <= rowsCount; r++) {
+          for (let c = 1; c <= columnsCount; c++) {
+            const key = `${r}-${c}`;
+            if (prev[key]) {
+              next[key] = prev[key];
+            } else {
+              next[key] = 'seat';
+            }
           }
         }
-      }
-      return next;
+        return next;
+      });
     });
   }, [rowsCount, columnsCount, isLoadingDetails]);
+
 
   
   const validateForm = (): boolean => {
@@ -120,7 +123,7 @@ export default function RoomForm(): React.JSX.Element {
       setNameError(null);
     }
 
-    if (rowsCount <= 0 || isNaN(rowsCount)) {
+    if (rowsCount <= 0 || Number.isNaN(rowsCount)) {
       setRowsError('Las filas deben ser mayores que cero.');
       isValid = false;
     } else if (rowsCount > 20) {
@@ -130,7 +133,7 @@ export default function RoomForm(): React.JSX.Element {
       setRowsError(null);
     }
 
-    if (columnsCount <= 0 || isNaN(columnsCount)) {
+    if (columnsCount <= 0 || Number.isNaN(columnsCount)) {
       setColsError('Las columnas deben ser mayores que cero.');
       isValid = false;
     } else if (columnsCount > 20) {
@@ -171,13 +174,13 @@ export default function RoomForm(): React.JSX.Element {
 
   
   const handleRowsChange = (val: number): void => {
-    const safeVal = isNaN(val) ? 0 : val;
+    const safeVal = Number.isNaN(val) ? 0 : val;
     setRowsCount(safeVal);
     if (safeVal > 0 && safeVal <= 20) setRowsError(null);
   };
 
   const handleColsChange = (val: number): void => {
-    const safeVal = isNaN(val) ? 0 : val;
+    const safeVal = Number.isNaN(val) ? 0 : val;
     setColumnsCount(safeVal);
     if (safeVal > 0 && safeVal <= 20) setColsError(null);
   };

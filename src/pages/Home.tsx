@@ -127,7 +127,7 @@ export default function Home(): React.JSX.Element {
                       className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800 hover:text-amber-500 transition-colors flex items-center gap-2 cursor-pointer"
                     >
                       <span className="material-symbols-outlined text-[18px]">dashboard</span>
-                      Panel de Administración
+                        Panel de Administración
                     </button>
                   )}
 

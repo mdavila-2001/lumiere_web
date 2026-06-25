@@ -11,10 +11,10 @@ interface SeatCoordinate {
 
 const getRowLabel = (rowNum: number): string => {
   let charCode = 64 + rowNum;
-  if (charCode >= 73) { 
+  if (charCode >= 73) {
     charCode += 1;
   }
-  return String.fromCharCode(charCode);
+  return String.fromCodePoint(charCode);
 };
 
 export default function SeatMap(): React.JSX.Element {
@@ -68,15 +68,16 @@ export default function SeatMap(): React.JSX.Element {
   }, []);
 
   React.useEffect(() => {
-    if (showtimeId) {
-      loadData(showtimeId);
-    } else {
-      setErrorMsg('Identificador de función no especificado.');
-      setIsLoading(false);
-    }
+    Promise.resolve().then(() => {
+      if (showtimeId) {
+        loadData(showtimeId);
+      } else {
+        setErrorMsg('Identificador de función no especificado.');
+        setIsLoading(false);
+      }
+    });
   }, [showtimeId, loadData]);
 
-  
   const activeSeatsSet = React.useMemo(() => {
     const set = new Set<string>();
     if (showtime?.room?.seats) {
@@ -100,12 +101,10 @@ export default function SeatMap(): React.JSX.Element {
       );
       setShowLimitWarning(false);
     } else {
-      
       if (selectedSeats.length < ticketQuantity) {
         setSelectedSeats((prev) => [...prev, { rowNumber, columnNumber }]);
         setShowLimitWarning(false);
       } else {
-        
         setShowLimitWarning(true);
       }
     }
